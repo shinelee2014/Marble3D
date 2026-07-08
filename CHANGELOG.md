@@ -22,4 +22,3 @@ Initial public release.
 ### Excluded
 - Semantic embeddings (derived / recomputable).
 - All per-child and user data (never published).
-- Teaching-research and visualization layers (planned for a later, separately-licensed release).

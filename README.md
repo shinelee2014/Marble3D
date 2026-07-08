@@ -115,4 +115,4 @@ Plus the upstream notices in [PROVENANCE.md](PROVENANCE.md) for any curriculum s
 
 ## What's *not* here
 
-Deliberately excluded from this release: semantic embeddings (derived, recomputable), any per-child / user data (never published), and Marble's teaching-research and visualization layers (a later, separately-licensed release). See [CHANGELOG.md](CHANGELOG.md).
+Deliberately excluded from this release: semantic embeddings (derived, recomputable) and any per-child / user data (never published). See [CHANGELOG.md](CHANGELOG.md).
