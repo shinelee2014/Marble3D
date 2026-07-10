@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marble K-12 课程图谱与多账号家庭自适应诊断系统</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #131b2e;
+      --bg-card: rgba(22, 33, 58, 0.6);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.15);
+      
+      --color-science: #ca8a04;
+      --color-math: #2563eb;
+      --color-chinese: #ea580c;
+      --color-english: #db2777;
+      --color-history: #9333ea;
+      --color-social: #0d9488;
+      --color-life: #e11d48;
+      --color-computing: #0284c7;
+      --color-learn: #16a34a;
+      
+      --status-mastered: #10b981;
+      --status-practice: #ef4444;
+      --status-unmarked: #6b7280;
+      
+      --font-primary: 'Inter', sans-serif;
+      --font-display: 'Outfit', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      background-color: rgba(11, 15, 25, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      height: 70px;
+    }
+
+    header h1 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .child-name-input {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .child-name-input label {
+      color: var(--text-secondary);
+    }
+
+    .child-name-input select {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-weight: 600;
+      outline: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      padding: 0.1rem 0.4rem;
+    }
+
+    .child-name-input select option {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: var(--left-width, 360px) 4px 1fr 4px var(--right-width, 450px);
+      flex-grow: 1;
+      height: calc(100vh - 70px);
+      overflow: hidden;
+    }
+
+    .container.dragging {
+      user-select: none;
+    }
+
+    .container.dragging canvas {
+      pointer-events: none;
+    }
+
+    .resizer {
+      width: 4px;
+      cursor: col-resize;
+      background-color: var(--border-color);
+      transition: background-color 0.2s, width 0.2s;
+      z-index: 5;
+      position: relative;
+    }
+
+    .resizer:hover, .resizer.dragging {
+      background-color: var(--accent);
+      width: 6px;
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      border-right: 1px solid var(--border-color);
+      background-color: rgba(19, 27, 46, 0.4);
+      display: flex;
+      flex-direction: column;
+      padding: 1.25rem;
+      overflow-y: auto;
+      gap: 1.15rem;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      background-color: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.88rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .filter-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .subject-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .filter-btn {
+      background-color: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+      background-color: rgba(30, 41, 59, 0.8);
+      color: var(--text-primary);
+    }
+
+    .filter-btn.active {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .progress-panel {
+      background-color: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      margin-top: 0.4rem;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .topic-list-container {
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .topic-item {
+      padding: 0.75rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 0.4rem;
+      background-color: rgba(22, 33, 58, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .topic-item:hover {
+      background-color: rgba(22, 33, 58, 0.4);
+      border-color: var(--border-color);
+    }
+
+    .topic-item.selected {
+      background-color: rgba(59, 130, 246, 0.12);
+      border-color: rgba(59, 130, 246, 0.4);
+    }
+
+    .topic-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 0.5rem;
+    }
+
+    .topic-item-name-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-dot.mastered { background-color: var(--status-mastered); box-shadow: 0 0 6px var(--status-mastered); }
+    .status-dot.practice { background-color: var(--status-practice); box-shadow: 0 0 6px var(--status-practice); }
+    .status-dot.unmarked { background-color: var(--status-unmarked); }
+
+    .topic-item-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .subject-badge {
+      font-size: 0.6rem;
+      padding: 0.12rem 0.35rem;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .topic-item-meta {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      padding-left: 13px;
+    }
+
+    /* 3D Visualization Area (Center Column) */
+    .visualization-area {
+      position: relative;
+      background-color: #080c15;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .viz-canvas-container {
+      flex-grow: 1;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    .viz-canvas-container:active {
+      cursor: grabbing;
+    }
+
+    #viz-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .viz-overlay {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      pointer-events: none;
+      background: rgba(11, 15, 25, 0.7);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(8px);
+      max-width: 320px;
+    }
+
+    .viz-overlay h3 {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .viz-overlay p {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .legend {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      background: rgba(11, 15, 25, 0.7);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    .legend-color {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* Right Column (Details Area) */
+    .main-content {
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      background-color: #0b0f19;
+      height: 100%;
+    }
+
+    .detail-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0; /* Prevent shrinking and text clipping */
+    }
+
+    .detail-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background-color: var(--accent);
+    }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1rem;
+      margin-bottom: 1.15rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .detail-title-area {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .detail-title-area h2 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    .detail-metadata {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-tag {
+      font-size: 0.7rem;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      padding: 0.15rem 0.5rem;
+      border-radius: 20px;
+      color: var(--text-secondary);
+    }
+
+    .meta-tag strong {
+      color: var(--text-primary);
+    }
+
+    /* Mastery Buttons */
+    .mastery-controls-group {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .mastery-btn {
+      border: 1px solid var(--border-color);
+      background-color: rgba(30, 41, 59, 0.4);
+      color: var(--text-secondary);
+      font-family: var(--font-primary);
+      font-size: 0.75rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      white-space: nowrap;
+    }
+
+    .mastery-btn:hover {
+      background-color: rgba(30, 41, 59, 0.7);
+      color: var(--text-primary);
+    }
+
+    .mastery-btn.active-mastered {
+      background-color: rgba(16, 185, 129, 0.15);
+      border-color: var(--status-mastered);
+      color: #34d399;
+    }
+
+    .mastery-btn.active-practice {
+      background-color: rgba(239, 68, 68, 0.15);
+      border-color: var(--status-practice);
+      color: #f87171;
+    }
+
+    .desc-text {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--text-primary);
+      margin-bottom: 1.15rem;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .evidence-list {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1.15rem;
+    }
+
+    .evidence-list li {
+      position: relative;
+      padding-left: 1.3rem;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: var(--text-primary);
+    }
+
+    .evidence-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #10b981;
+      font-weight: bold;
+    }
+
+    .prompt-box {
+      background-color: rgba(15, 23, 42, 0.6);
+      border: 1px dashed rgba(59, 130, 246, 0.3);
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #93c5fd;
+      line-height: 1.5;
+    }
+
+    /* Diagnostics Warning Banner */
+    .diagnostic-warning {
+      background-color: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      font-size: 0.8rem;
+      color: #f87171;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    /* PBL Section */
+    .pbl-card {
+      background: linear-gradient(135deg, rgba(147, 51, 234, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%);
+      border: 1px solid rgba(147, 51, 234, 0.25);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      box-shadow: 0 4px 20px rgba(147, 51, 234, 0.1);
+      flex-shrink: 0; /* Prevent shrinking and text clipping */
+    }
+
+    .pbl-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .pbl-tag {
+      background-color: rgba(147, 51, 234, 0.2);
+      color: #c084fc;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .pbl-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #e9d5ff;
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    .pbl-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      padding-left: 1.15rem;
+    }
+
+    /* Relationship cards */
+    .relationship-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      flex-shrink: 0; /* Prevent shrinking and text clipping */
+    }
+
+    .relation-card {
+      background-color: rgba(15, 23, 42, 0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .relation-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .relation-item {
+      background-color: rgba(30, 41, 59, 0.3);
+      padding: 0.6rem;
+      border-radius: 8px;
+      border-left: 3px solid var(--accent);
+      cursor: pointer;
+      transition: background-color 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .relation-item:hover {
+      background-color: rgba(30, 41, 59, 0.5);
+    }
+
+    .relation-item-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .relation-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .relation-reason {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    .relation-badge-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.2rem;
+      flex-shrink: 0;
+    }
+
+    .warning-badge {
+      font-size: 0.55rem;
+      background-color: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      padding: 0.05rem 0.25rem;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
+    .standard-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      background-color: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+      font-family: monospace;
+      color: #f472b6;
+      margin-right: 0.3rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .subject-Science { background-color: var(--color-science); color: white; }
+    .subject-Mathematics { background-color: var(--color-math); color: white; }
+    .subject-Chinese { background-color: var(--color-chinese); color: white; }
+    .subject-English { background-color: var(--color-english); color: white; }
+    .subject-History { background-color: var(--color-history); color: white; }
+    .subject-PSD { background-color: var(--color-social); color: white; }
+    .subject-Life { background-color: var(--color-life); color: white; }
+    .subject-Computing { background-color: var(--color-computing); color: white; }
+    .subject-Learning { background-color: var(--color-learn); color: white; }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>🔮 Marble 3D 旋转课程图谱与家庭辅导系统</h1>
+      <div class="subtitle" id="subtitle-text">3D 粒子力导向螺旋结构可视化 · 江苏/苏州小学教学进度适配</div>
+    </div>
+    
+    <div class="header-controls">
+      <div class="child-name-input">
+        <label for="profile-select">当前孩子：</label>
+        <select id="profile-select" onchange="switchProfile(this.value)"></select>
+        <button class="filter-btn" style="padding: 0.15rem 0.4rem; font-size: 0.65rem; background-color: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.4); color: #60a5fa;" onclick="addNewProfile()">+ 新增</button>
+        <button id="delete-profile-btn" class="filter-btn" style="padding: 0.15rem 0.4rem; font-size: 0.65rem; background-color: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: #f87171;" onclick="deleteCurrentProfile()">删除</button>
+      </div>
+      <div id="stats-counter" class="subtitle">
+        加载中...
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar" id="left-sidebar">
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="搜索知识点...">
+      </div>
+
+      <div>
+        <div class="filter-title">
+          <span>学科筛选</span>
+          <button class="filter-btn" style="padding: 0.15rem 0.4rem; font-size: 0.65rem;" onclick="clearAllProgress()">重置当前进度</button>
+        </div>
+        <div class="subject-filters" id="subject-filters">
+          <button class="filter-btn active" data-subject="all">全部</button>
+        </div>
+      </div>
+
+      <div style="margin-top: 0.8rem; margin-bottom: 0.3rem;">
+        <div class="filter-title">
+          <span>年级筛选</span>
+        </div>
+        <div class="subject-filters" id="grade-filters" style="margin-top: 0.4rem; display: flex; gap: 0.35rem; flex-wrap: wrap;">
+          <button class="filter-btn active" data-grade="all">全部</button>
+          <button class="filter-btn" data-grade="1">一年级</button>
+          <button class="filter-btn" data-grade="2">二年级</button>
+          <button class="filter-btn" data-grade="3">三年级</button>
+          <button class="filter-btn" data-grade="4">四年级</button>
+          <button class="filter-btn" data-grade="5">五年级</button>
+          <button class="filter-btn" data-grade="6">六年级</button>
+        </div>
+      </div>
+
+      <div class="progress-panel">
+        <div class="filter-title" style="margin-bottom: 0.25rem;">
+          <span>当前孩子通关进度</span>
+          <span id="progress-percent">0%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <div class="filter-title">知识点列表 (<span id="match-count">0</span>)</div>
+      <div class="topic-list-container" id="topic-list">
+        <!-- Topics loaded dynamically -->
+      </div>
+    </div>
+
+    <div class="resizer" id="left-resizer"></div>
+
+    <!-- 3D Visualization Area (Center Column) -->
+    <div class="visualization-area">
+      <div class="viz-canvas-container" id="canvas-container">
+        <canvas id="viz-canvas"></canvas>
+      </div>
+      
+      <div class="viz-overlay">
+        <h3 id="hover-node-name">3D 课程图谱导航器</h3>
+        <p id="hover-node-desc">拖动鼠标可以旋转图谱，滚轮可以缩放。每一个粒子代表一个知识点，高度代表年级，连线代表前置条件。点击粒子可立即聚焦。</p>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><span class="legend-color" style="background-color: var(--color-math);"></span> 数学</div>
+        <div class="legend-item"><span class="legend-color" style="background-color: var(--color-science);"></span> 科学</div>
+        <div class="legend-item"><span class="legend-color" style="background-color: var(--color-chinese);"></span> 语文</div>
+        <div class="legend-item"><span class="legend-color" style="background-color: var(--color-english);"></span> 英语</div>
+        <div class="legend-item"><span class="legend-color" style="background-color: var(--color-history);"></span> 历史与社会</div>
+        <div class="legend-item"><span class="legend-color" style="background-color: var(--color-social);"></span> 道德与法治</div>
+      </div>
+    </div>
+
+    <div class="resizer" id="right-resizer"></div>
+
+    <!-- Right Column (Details Area) -->
+    <div class="main-content" id="detail-panel">
+      <div class="welcome-screen">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <h3>请在左侧或 3D 图谱中选择知识点</h3>
+        <p>可在卡片中记录孩子“已掌握”或“需要练习”以形成家庭自适应学习档案</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let state = {
+      topics: [],
+      dependencies: [],
+      topicMap: {},
+      prereqMap: {}, // target -> list of prereqs
+      unlockMap: {}, // prereq -> list of targets
+      activeSubject: 'all',
+      activeGrade: 'all',
+      searchQuery: '',
+      selectedTopicId: null,
+      
+      // Multi-profile Management
+      profiles: [],
+      activeProfileId: null,
+      mastery: {}
+    };
+
+    // 3D Engine Variables
+    let viz = {
+      canvas: null,
+      ctx: null,
+      nodes: [], // elements for 3D engine: {id, name, x, y, z, rx, ry, rz, color, size, subject}
+      edges: [], // elements for 3D engine: {source, target}
+      angleX: 0.3,
+      angleY: 0.5,
+      zoom: 1.0,
+      isDragging: false,
+      lastMouseX: 0,
+      lastMouseY: 0,
+      hoverNodeId: null
+    };
+
+    const subjectClassMap = {
+      '科学': 'subject-Science',
+      '数学': 'subject-Mathematics',
+      '语文': 'subject-Chinese',
+      '英语': 'subject-English',
+      '历史与社会': 'subject-History',
+      '道德与法治': 'subject-PSD',
+      '生活技能': 'subject-Life',
+      '信息技术': 'subject-Computing',
+      '学习方法': 'subject-Learning'
+    };
+
+    const subjectColors = {
+      '科学': '#ca8a04',
+      '数学': '#2563eb',
+      '语文': '#ea580c',
+      '英语': '#db2777',
+      '历史与社会': '#9333ea',
+      '道德与法治': '#0d9488',
+      '生活技能': '#e11d48',
+      '信息技术': '#0284c7',
+      '学习方法': '#16a34a'
+    };
+
+    function getSubjectClass(subject) {
+      return subjectClassMap[subject] || 'subject-PSD';
+    }
+
+    function updateSubtitle() {
+      const activeProfile = state.profiles.find(p => p.id === state.activeProfileId);
+      const subtitleEl = document.getElementById('subtitle-text');
+      if (subtitleEl) {
+        if (activeProfile) {
+          const gradeText = activeProfile.grade ? `${activeProfile.grade}年级` : "全学段";
+          subtitleEl.innerHTML = `3D 粒子力导向螺旋结构可视化 · 江苏/苏州小学教学进度适配 · 🎯 当前孩子：<strong>${activeProfile.name} (${gradeText})</strong>`;
+        } else {
+          subtitleEl.innerHTML = `3D 粒子力导向螺旋结构可视化 · 江苏/苏州小学教学进度适配`;
+        }
+      }
+    }
+
+    function updateGradeFilterUI() {
+      const btns = document.querySelectorAll('#grade-filters .filter-btn');
+      btns.forEach(btn => {
+        if (btn.getAttribute('data-grade') === state.activeGrade) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    // Load API Profiles
+    async function initProfiles() {
+      const res = await fetch('/api/profiles').then(r => r.json());
+      state.profiles = res.profiles;
+      state.activeProfileId = res.activeProfileId;
+      
+      await loadActiveProfileProgress();
+      renderProfileDropdown();
+      
+      const activeProfile = state.profiles.find(p => p.id === state.activeProfileId);
+      if (activeProfile && activeProfile.grade) {
+        state.activeGrade = activeProfile.grade.toString();
+      } else {
+        state.activeGrade = 'all';
+      }
+      updateGradeFilterUI();
+      updateSubtitle();
+    }
+
+    async function loadActiveProfileProgress() {
+      const res = await fetch(`/api/mastery?profileId=${state.activeProfileId}`).then(r => r.json());
+      state.mastery = res;
+      
+      // Synchronize mastery keys with loaded topics
+      state.topics.forEach(t => {
+        if (!state.mastery[t.id]) {
+          state.mastery[t.id] = 'unmarked';
+        }
+      });
+    }
+
+    async function saveState() {
+      await fetch('/api/mastery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profileId: state.activeProfileId,
+          mastery: state.mastery
+        })
+      });
+      calculateProgress();
+    }
+
+    function renderProfileDropdown() {
+      const select = document.getElementById('profile-select');
+      select.innerHTML = '';
+      state.profiles.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.innerText = p.name;
+        if (p.id === state.activeProfileId) {
+          opt.selected = true;
+        }
+        select.appendChild(opt);
+      });
+      document.getElementById('delete-profile-btn').disabled = (state.profiles.length <= 1);
+    }
+
+    async function switchProfile(profileId) {
+      // Save current progress before switching
+      await saveState();
+      
+      state.activeProfileId = profileId;
+      
+      // Sync switch to server
+      await fetch('/api/profiles/switch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId })
+      });
+      
+      await loadActiveProfileProgress();
+      
+      const activeProfile = state.profiles.find(p => p.id === profileId);
+      if (activeProfile && activeProfile.grade) {
+        state.activeGrade = activeProfile.grade.toString();
+      } else {
+        state.activeGrade = 'all';
+      }
+      updateGradeFilterUI();
+      updateSubtitle();
+      
+      calculateProgress();
+      renderList();
+      if (state.selectedTopicId) {
+        selectTopic(state.selectedTopicId);
+      }
+    }
+
+    async function addNewProfile() {
+      const name = prompt("请输入新增加的孩子姓名：");
+      if (!name || name.trim() === "") return;
+      
+      const grade = prompt("请输入该孩子的年级（数字 1-6，代表一至六年级）：", "1");
+      const gradeNum = parseInt(grade);
+      if (isNaN(gradeNum) || gradeNum < 1 || gradeNum > 6) {
+        alert("请输入合法的年级数字（1-6）！");
+        return;
+      }
+      
+      await fetch('/api/profiles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), grade: gradeNum })
+      }).then(r => r.json());
+      
+      // Reload
+      await initProfiles();
+      renderList();
+      if (state.selectedTopicId) {
+        selectTopic(state.selectedTopicId);
+      }
+    }
+
+    async function deleteCurrentProfile() {
+      if (state.profiles.length <= 1) {
+        alert("必须保留至少一个孩子档案！");
+        return;
+      }
+      
+      const activeName = state.profiles.find(p => p.id === state.activeProfileId).name;
+      if (confirm(`确定要永久删除《${activeName}》的档案和通关进度吗？此操作将永久抹除服务器上此项纪录。`)) {
+        await fetch('/api/profiles/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profileId: state.activeProfileId })
+        });
+        
+        await initProfiles();
+        calculateProgress();
+        renderList();
+        if (state.selectedTopicId) {
+          selectTopic(state.selectedTopicId);
+        }
+      }
+    }
+
+    function calculateProgress() {
+      if (state.topics.length === 0) return;
+      const masteredCount = Object.values(state.mastery).filter(v => v === 'mastered').length;
+      const percent = Math.round((masteredCount / state.topics.length) * 100);
+      document.getElementById('progress-percent').innerText = `${percent}%`;
+      document.getElementById('progress-fill').style.width = `${percent}%`;
+    }
+
+    async function clearAllProgress() {
+      const activeName = state.profiles.find(p => p.id === state.activeProfileId).name;
+      if (confirm(`确定要清空孩子《${activeName}》的所有通关进度吗？`)) {
+        state.mastery = {};
+        state.topics.forEach(t => {
+          state.mastery[t.id] = 'unmarked';
+        });
+        await saveState();
+        renderList();
+        if (state.selectedTopicId) {
+          selectTopic(state.selectedTopicId);
+        }
+      }
+    }
+
+    // Load data
+    async function loadData() {
+      try {
+        const topicsResponse = await fetch('data/topics_cn.json');
+        const depsResponse = await fetch('data/dependencies_cn.json');
+        
+        const topicsData = await topicsResponse.json();
+        const depsData = await depsResponse.json();
+        
+        state.topics = topicsData.topics;
+        state.dependencies = depsData.dependencies;
+        
+        // Build maps
+        state.topics.forEach(t => {
+          state.topicMap[t.id] = t;
+          state.prereqMap[t.id] = [];
+          state.unlockMap[t.id] = [];
+        });
+        
+        state.dependencies.forEach(d => {
+          if (state.prereqMap[d.topicId]) {
+            state.prereqMap[d.topicId].push(d);
+          }
+          if (state.unlockMap[d.prerequisiteId]) {
+            state.unlockMap[d.prerequisiteId].push(d);
+          }
+        });
+        
+        await initProfiles();
+        initFilters();
+        renderList();
+        calculateProgress();
+        
+        document.getElementById('stats-counter').innerText = 
+          `图谱共载入 ${state.topics.length} 个知识点 · ${state.dependencies.length} 条依赖边`;
+          
+        // Initialize 3D visualization Engine
+        init3DEngine();
+        
+      } catch (err) {
+        console.error("加载数据失败:", err);
+        document.getElementById('stats-counter').innerHTML = 
+          `<span style="color: #ef4444">⚠️ 数据载入失败，请确保使用 python server.py 启动本地服务器访问</span>`;
+      }
+    }
+
+    function initFilters() {
+      const subjects = [...new Set(state.topics.map(t => t.subject))].sort();
+      const filterContainer = document.getElementById('subject-filters');
+      
+      subjects.forEach(sub => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.setAttribute('data-subject', sub);
+        btn.innerText = sub;
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#subject-filters .filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.activeSubject = sub;
+          renderList();
+        });
+        filterContainer.appendChild(btn);
+      });
+      
+      document.querySelector('[data-subject="all"]').addEventListener('click', (e) => {
+        document.querySelectorAll('#subject-filters .filter-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        state.activeSubject = 'all';
+        renderList();
+      });
+
+      // Grade filters click listener
+      const gradeContainer = document.getElementById('grade-filters');
+      if (gradeContainer) {
+        gradeContainer.addEventListener('click', (e) => {
+          if (e.target.tagName === 'BUTTON') {
+            document.querySelectorAll('#grade-filters .filter-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            state.activeGrade = e.target.getAttribute('data-grade');
+            renderList();
+          }
+        });
+      }
+    }
+
+    function renderList() {
+      const listContainer = document.getElementById('topic-list');
+      listContainer.innerHTML = '';
+      
+      const filtered = state.topics.filter(t => {
+        const matchesSubject = state.activeSubject === 'all' || t.subject === state.activeSubject;
+        const matchesSearch = !state.searchQuery || 
+          t.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+          t.description.toLowerCase().includes(state.searchQuery.toLowerCase());
+        
+        let matchesGrade = true;
+        if (state.activeGrade !== 'all') {
+          const targetAge = parseInt(state.activeGrade) + 5;
+          const start = t.ageRangeStart;
+          const end = t.ageRangeEnd;
+          matchesGrade = (start !== null && start <= targetAge && (end === null || targetAge <= end));
+        }
+        return matchesSubject && matchesSearch && matchesGrade;
+      });
+      
+      document.getElementById('match-count').innerText = filtered.length;
+      
+      filtered.forEach(t => {
+        const item = document.createElement('div');
+        const status = state.mastery[t.id] || 'unmarked';
+        item.className = `topic-item ${state.selectedTopicId === t.id ? 'selected' : ''}`;
+        
+        item.innerHTML = `
+          <div class="topic-item-header">
+            <div class="topic-item-name-group">
+              <span class="status-dot ${status}"></span>
+              <span class="topic-item-name">${t.name}</span>
+            </div>
+            <span class="subject-badge ${getSubjectClass(t.subject)}">${t.subject.substring(0,2)}</span>
+          </div>
+          <div class="topic-item-meta">
+            <span>年龄: ${t.ageRangeStart ?? '?'}-${t.ageRangeEnd ?? '?'} 岁</span>
+            <span>类型: ${t.type}</span>
+          </div>
+        `;
+        
+        item.addEventListener('click', () => {
+          document.querySelectorAll('.topic-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          selectTopic(t.id);
+        });
+        
+        listContainer.appendChild(item);
+      });
+    }
+
+    // ----------------------------------------------------
+    // 3D Canvas Engine Implementation (Vanilla HTML5 Canvas)
+    // ----------------------------------------------------
+    function init3DEngine() {
+      viz.canvas = document.getElementById('viz-canvas');
+      viz.ctx = viz.canvas.getContext('2d');
+      const container = document.getElementById('canvas-container');
+      
+      // Handle resize
+      function resize() {
+        viz.canvas.width = container.clientWidth;
+        viz.canvas.height = container.clientHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+      
+      // Calculate coordinates for nodes in a cylindrical spiral
+      const subjects = [...new Set(state.topics.map(t => t.subject))].sort();
+      const subjectAngles = {};
+      subjects.forEach((subj, idx) => {
+        subjectAngles[subj] = (idx / subjects.length) * Math.PI * 2;
+      });
+      
+      viz.nodes = state.topics.map((t, idx) => {
+        const age = t.ageRangeStart ?? 6;
+        const normalizedAge = (age - 6) / 8; // ages 6-14 mapped to 0-1
+        
+        const z = -250 + normalizedAge * 500; // -250 to 250
+        
+        // Base angle for subject column + spiral twist based on age
+        const baseAngle = subjectAngles[t.subject];
+        const spiralTwist = normalizedAge * Math.PI * 1.5; // spiral twist
+        const angle = baseAngle + spiralTwist;
+        
+        // Radius of cylinder
+        const r = 240 + Math.sin(normalizedAge * Math.PI * 2) * 40; 
+        const x = Math.cos(angle) * r;
+        const y = Math.sin(angle) * r;
+        
+        return {
+          id: t.id,
+          name: t.name,
+          x: x,
+          y: y,
+          z: z,
+          rx: 0, ry: 0, rz: 0, // projected
+          screenX: 0, screenY: 0, // screen
+          color: subjectColors[t.subject] || '#9ca3af',
+          size: 4 + (t.centrality ?? 0) * 12,
+          subject: t.subject
+        };
+      });
+      
+      // Build 3D Edges representation
+      viz.edges = state.dependencies.map(d => {
+        return {
+          source: d.prerequisiteId,
+          target: d.topicId,
+          strength: d.strength
+        };
+      });
+      
+      // Listeners for dragging & rotating
+      container.addEventListener('mousedown', (e) => {
+        viz.isDragging = true;
+        viz.lastMouseX = e.clientX;
+        viz.lastMouseY = e.clientY;
+      });
+      
+      window.addEventListener('mouseup', () => {
+        viz.isDragging = false;
+      });
+      
+      container.addEventListener('mousemove', (e) => {
+        if (viz.isDragging) {
+          const deltaX = e.clientX - viz.lastMouseX;
+          const deltaY = e.clientY - viz.lastMouseY;
+          
+          viz.angleY += deltaX * 0.005;
+          viz.angleX += deltaY * 0.005;
+          
+          viz.lastMouseX = e.clientX;
+          viz.lastMouseY = e.clientY;
+        } else {
+          // Hover detection
+          const rect = viz.canvas.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+          
+          let foundNode = null;
+          // Scan only nodes in active search/filter state or check all
+          for (let node of viz.nodes) {
+            const dx = mouseX - node.screenX;
+            const dy = mouseY - node.screenY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < node.size + 4) {
+              foundNode = node;
+              break;
+            }
+          }
+          
+          if (foundNode) {
+            viz.hoverNodeId = foundNode.id;
+            document.getElementById('hover-node-name').innerText = foundNode.name;
+            const originalTopic = state.topicMap[foundNode.id];
+            document.getElementById('hover-node-desc').innerText = `[${originalTopic.subject}] 年龄段: ${originalTopic.ageRangeStart}-${originalTopic.ageRangeEnd}岁\n双击或点击此粒子可查看详情并记录进度。`;
+            viz.canvas.style.cursor = 'pointer';
+          } else {
+            viz.hoverNodeId = null;
+            viz.canvas.style.cursor = 'grab';
+          }
+        }
+      });
+      
+      // Touch support
+      container.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          viz.isDragging = true;
+          viz.lastMouseX = e.touches[0].clientX;
+          viz.lastMouseY = e.touches[0].clientY;
+        }
+      });
+      
+      container.addEventListener('touchmove', (e) => {
+        if (viz.isDragging && e.touches.length === 1) {
+          const deltaX = e.touches[0].clientX - viz.lastMouseX;
+          const deltaY = e.touches[0].clientY - viz.lastMouseY;
+          
+          viz.angleY += deltaX * 0.005;
+          viz.angleX += deltaY * 0.005;
+          
+          viz.lastMouseX = e.touches[0].clientX;
+          viz.lastMouseY = e.touches[0].clientY;
+        }
+      });
+      
+      container.addEventListener('touchend', () => {
+        viz.isDragging = false;
+      });
+      
+      // Zoom support via scrollwheel
+      container.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        viz.zoom += e.deltaY * -0.001;
+        viz.zoom = Math.max(0.2, Math.min(3.0, viz.zoom));
+      });
+      
+      // Click node
+      container.addEventListener('click', (e) => {
+        if (viz.hoverNodeId) {
+          selectAndScroll(viz.hoverNodeId);
+        }
+      });
+      
+      // Start Render loop
+      requestAnimationFrame(renderLoop);
+    }
+
+    function renderLoop() {
+      const width = viz.canvas.width;
+      const height = viz.canvas.height;
+      const ctx = viz.ctx;
+      
+      // Clear screen
+      ctx.fillStyle = '#080c15';
+      ctx.fillRect(0, 0, width, height);
+      
+      // Auto rotate slightly if not dragging
+      if (!viz.isDragging) {
+        viz.angleY += 0.0015;
+      }
+      
+      const cosX = Math.cos(viz.angleX);
+      const sinX = Math.sin(viz.angleX);
+      const cosY = Math.cos(viz.angleY);
+      const sinY = Math.sin(viz.angleY);
+      
+      // 1. Calculate 3D rotations for all nodes
+      viz.nodes.forEach(node => {
+        let x1 = node.x * cosY - node.z * sinY;
+        let z1 = node.x * sinY + node.z * cosY;
+        
+        let y2 = node.y * cosX - z1 * sinX;
+        let z2 = node.y * sinX + z1 * cosX;
+        
+        node.rx = x1;
+        node.ry = y2;
+        node.rz = z2;
+        
+        const d = 600;
+        const scale = (d / (d + z2)) * viz.zoom;
+        
+        node.screenX = width / 2 + x1 * scale * 1.2;
+        node.screenY = height / 2 + y2 * scale * 1.2;
+        node.scale = scale;
+      });
+      
+      const filteredIds = new Set(state.topics.filter(t => {
+        const matchesSubject = state.activeSubject === 'all' || t.subject === state.activeSubject;
+        const matchesSearch = !state.searchQuery || 
+          t.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+          t.description.toLowerCase().includes(state.searchQuery.toLowerCase());
+        
+        let matchesGrade = true;
+        if (state.activeGrade !== 'all') {
+          const targetAge = parseInt(state.activeGrade) + 5;
+          const start = t.ageRangeStart;
+          const end = t.ageRangeEnd;
+          matchesGrade = (start !== null && start <= targetAge && (end === null || targetAge <= end));
+        }
+        return matchesSubject && matchesSearch && matchesGrade;
+      }).map(t => t.id));
+      
+      // 2. Draw Edges
+      viz.edges.forEach(edge => {
+        const srcNode = viz.nodes.find(n => n.id === edge.source);
+        const tgtNode = viz.nodes.find(n => n.id === edge.target);
+        
+        if (!srcNode || !tgtNode) return;
+        
+        const isSelectedLink = (edge.source === state.selectedTopicId || edge.target === state.selectedTopicId);
+        
+        if (isSelectedLink) {
+          ctx.strokeStyle = edge.source === state.selectedTopicId ? '#c084fc' : '#60a5fa';
+          ctx.lineWidth = 2.5;
+          ctx.globalAlpha = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(srcNode.screenX, srcNode.screenY);
+          ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
+          ctx.stroke();
+        } else if (filteredIds.has(edge.source) && filteredIds.has(edge.target)) {
+          ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+          ctx.lineWidth = 0.6;
+          ctx.globalAlpha = 0.15;
+          ctx.beginPath();
+          ctx.moveTo(srcNode.screenX, srcNode.screenY);
+          ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
+          ctx.stroke();
+        }
+      });
+      
+      ctx.globalAlpha = 1.0;
+      
+      // 3. Draw Nodes (Depth sorted: back to front)
+      const sortedNodes = [...viz.nodes].sort((a, b) => b.rz - a.rz);
+      
+      sortedNodes.forEach(node => {
+        const isActive = filteredIds.has(node.id);
+        const isSelected = (node.id === state.selectedTopicId);
+        const isHovered = (node.id === viz.hoverNodeId);
+        
+        if (!isActive) {
+          ctx.globalAlpha = 0.1;
+        } else {
+          ctx.globalAlpha = 0.3 + (node.scale * 0.7);
+        }
+        
+        const size = node.size * node.scale;
+        
+        if (isSelected) {
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = node.color;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(node.screenX, node.screenY, size + 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+        
+        if (isHovered) {
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(node.screenX, node.screenY, size + 3, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        
+        ctx.fillStyle = node.color;
+        ctx.beginPath();
+        ctx.arc(node.screenX, node.screenY, Math.max(1.5, size), 0, Math.PI * 2);
+        ctx.fill();
+        
+        const masteryStatus = state.mastery[node.id];
+        if (masteryStatus === 'mastered' && isActive) {
+          ctx.fillStyle = '#10b981';
+          ctx.beginPath();
+          ctx.arc(node.screenX + size/2 + 2, node.screenY - size/2 - 2, 4 * node.scale, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (masteryStatus === 'practice' && isActive) {
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.arc(node.screenX + size/2 + 2, node.screenY - size/2 - 2, 4 * node.scale, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        
+        if ((isSelected || isHovered) && isActive) {
+          ctx.font = `bold ${Math.max(10, Math.min(14, 11 * node.scale))}px sans-serif`;
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.fillText(node.name, node.screenX, node.screenY - size - 8);
+        }
+      });
+      
+      ctx.globalAlpha = 1.0;
+      requestAnimationFrame(renderLoop);
+    }
+
+    const PBL_TEMPLATES_MAPPED = {
+      "mt_-2VNlwAR5z_mt_4MFUAsbx_6": {
+        "title": "🔬 光线魔镜：制作潜望镜与折射角测量",
+        "objective": "通过实际制作一个能“绕过障碍”看东西的潜望镜，让孩子将数学的【测量角度】与物理的【光线反射折射】完美融会贯通。",
+        "steps": [
+          "1. 引导孩子利用数学课上的量角器，在硬纸盒两端精确划出 45 度的斜线。",
+          "2. 顺着 45 度划线粘贴两块平面镜（注意保持平行）。",
+          "3. 打开纸盒两端的开口，让孩子从底端看，发现能看到头顶的景物，讨论【入射角等于反射角】的道理。"
+        ]
+      },
+      "mt_1VSfm9yiLn_mt_f8n4txtLej": {
+        "title": "🔍 小小逻辑刑警：侦破水果神秘失踪案",
+        "objective": "通过有趣的破案提问游戏，让孩子运用英语/语文中的【有效提问技巧】来搜集线索，进而通过数学的【分类归纳】查明真相。",
+        "steps": [
+          "1. 设定情境：一个苹果在厨房被藏起来了。孩子扮演警探，只能向家长提“是非题”（即家长只能回答‘是’或‘否’）。",
+          "2. 引导孩子利用发散思维提问：“这个东西是红色的吗？”、“它是水果吗？”，从而把杂乱的线索【分类归纳】。",
+          "3. 讨论：对比一次性盲目乱猜和通过分类提问找答案，哪种方法更快更准确？"
+        ]
+      },
+      "mt_3jmBpEepYX_mt_ZxdfRbwkKM": {
+        "title": "📰 自然观察日报：用‘证据’写一篇科学报道",
+        "objective": "将英语/语文的【证据式写作】与科学课上的【根据实验现象得出结论】结合，像个真正的科学记者一样写作。",
+        "steps": [
+          "1. 让孩子在阳台观察一盆植物3天（或者水滴蒸发），用笔记录下具体数字（如叶子长度、水分蒸发高度）。",
+          "2. 引导孩子写一段结论：“我认为这盆植物喜欢阳光...”，并用‘因为’来连接观察到的数据作为客观论据。",
+          "3. 讨论：对比‘我觉得它干了’和‘因为泥土干裂且3天没浇水’，哪种表述更能说服别人？"
+        ]
+      }
+    };
+
+    function generatePBLCard(topicId, prereqs) {
+      const currentTopic = state.topicMap[topicId];
+      let crossPrereq = null;
+      
+      for (let p of prereqs) {
+        const preTopic = state.topicMap[p.prerequisiteId];
+        if (preTopic && preTopic.subject !== currentTopic.subject) {
+          crossPrereq = preTopic;
+          break;
+        }
+      }
+      
+      if (!crossPrereq) return '';
+      
+      const key = `${topicId}_${crossPrereq.id}`;
+      const revKey = `${crossPrereq.id}_${topicId}`;
+      const template = PBL_TEMPLATES_MAPPED[key] || PBL_TEMPLATES_MAPPED[revKey];
+      
+      let pblTitle = "";
+      let pblObjective = "";
+      let pblSteps = [];
+      
+      if (template) {
+        pblTitle = template.title;
+        pblObjective = template.objective;
+        pblSteps = template.steps;
+      } else {
+        pblTitle = `🔬 跨学科整合项目：${currentTopic.subject} + ${crossPrereq.subject}`;
+        pblObjective = `结合《${crossPrereq.name}》的基础知识，在动手实践中探索和掌握《${currentTopic.name}》的真实运用。`;
+        pblSteps = [
+          `1. 【基础复习】：先利用《${crossPrereq.name}》的测试问句，确认孩子已掌握前置概念。`,
+          `2. 【动手体验】：引导孩子利用 ${crossPrereq.subject} 的逻辑工具，对 ${currentTopic.subject} 中的现象进行量化或记录。`,
+          `3. 【总结反思】：让孩子用口头复述的形式，说出为什么《${crossPrereq.name}》对理解《${currentTopic.name}》起到了关键作用。`
+        ];
+      }
+      
+      return `
+        <div class="pbl-card">
+          <div class="pbl-header">
+            <div class="pbl-title">${pblTitle}</div>
+            <span class="pbl-tag">STEAM 跨学科探究</span>
+          </div>
+          <div style="font-size: 0.82rem; color: #d8b4fe; line-height: 1.5;">
+            <strong>项目目标</strong>：${pblObjective}
+          </div>
+          <div class="pbl-steps">
+            ${pblSteps.map(s => `<div>${s}</div>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function generateExercisesHtml(topic) {
+      const id = topic.id;
+      const name = topic.name;
+      const subj = topic.subject;
+      const desc = topic.description;
+      
+      let exercises = [];
+      
+      if (id === "mt_WcfaSfVT33") {
+        exercises = [
+          { q: "数一数：桌子上有 🍉 🍉 🍉 🍉 🍉，请大声手口一致数出有几个西瓜？", a: "一共 5 个西瓜。数数时，眼睛看着第一个，手点着第一个，嘴里念‘1’，以此类推，不可漏数或重数。" },
+          { q: "情景题：盘子里有 3 个苹果，爸爸又放进 2 个。请用手指着盘子里的苹果，一个一个地数出来并报出总数。", a: "一共 5 个苹果。每次点按只数一下，最后一个念出的数‘5’即是总数。" },
+          { q: "判断题：数数时，手指着第二个苹果，嘴里却念‘3’。这样手口不一致，对吗？", a: "不对。嘴里念的数字要和手指点划的物体一一对应，手点到哪，口数到哪。" }
+        ];
+      } else if (subj === "数学") {
+        if (name.includes("分数") || desc.includes("分数")) {
+          exercises = [
+            { q: "写出阴影部分占整体的分数：一个圆形蛋糕被平均切成了 8 块，小明吃了其中 3 块，剩下的蛋糕占整个蛋糕的几分之几？", a: "分子是剩下的块数（8 - 3 = 5），分母是总块数（8），因此结果是 5/8。" },
+            { q: "比较大小： 3/4 和 5/6 哪个更大？请写出比较过程。", a: "5/6 更大。通分：将两个分数的公分母化为相同。3/4 = 9/12，5/6 = 10/12。因为 10/12 > 9/12，所以 5/6 > 3/4。" },
+            { q: "计算： 1/5 + 2/5 = ()， 3/8 - 1/8 = () （化简为最简分数）", a: "1/5 + 2/5 = 3/5； 3/8 - 1/8 = 2/8 = 1/4。" }
+          ];
+        } else if (name.includes("小数") || desc.includes("十分位") || desc.includes("数位")) {
+          exercises = [
+            { q: "数位判断：在小数 12.35 中，数字‘3’在什么数位上？代表什么？数字‘5’在什么数位上？代表什么？", a: "‘3’在十分位上，代表 3 个十分之一（即 0.3）；‘5’在百分位上，代表 5 个百分之一（即 0.05）。" },
+            { q: "计算与移动：将 0.08 扩大到原来的 10 倍是多少？将 45.6 缩小到原来的百分之一是多少？", a: "0.08 × 10 = 0.8（小数点向右移一位）；45.6 ÷ 100 = 0.456（小数点向左移两位）。" },
+            { q: "大小比较：请在括号内填入‘>’、‘<’或‘=’： 0.35 ( ) 0.4；  1.25 ( ) 1.250", a: "0.35 < 0.4（先看十分位，3 < 4）； 1.25 = 1.250（小数末尾添加0，大小不变）。" }
+          ];
+        } else if (name.includes("比") || name.includes("比例") || desc.includes("比")) {
+          exercises = [
+            { q: "求比值与化简：化简比 24 : 36 并在括号里写出它的比值 ()。", a: "化简比：前项后项同时除以最大公约数 12，得到 2 : 3。比值是 2 ÷ 3 = 2/3 (或约 0.67)。" },
+            { q: "解比例方程：如果 3 : 5 = 12 : x，那么 x 的值是多少？", a: "根据比例的基本性质（外项积等于内项积）：3 * x = 5 * 12 => 3x = 60 => x = 20。" },
+            { q: "配比应用题：调制一杯蜂蜜水，蜂蜜与水的质量比是 1 : 9。如果要调制 200 克的蜂蜜水，需要准备多少克蜂蜜和多少克水？", a: "总份数是 1 + 9 = 10 份。每份是 200 ÷ 10 = 20 克。因此需要蜂蜜 20 * 1 = 20 克，水 20 * 9 = 180 克。" }
+          ];
+        } else {
+          exercises = [
+            { q: `请尝试用口头或写下的方式，解答与《${name}》相关的一道计算或应用题。`, a: "这需要结合具体的课堂教材算式。可点击下方“复制 AI 出题 Prompt”让 AI 快速生成适配该知识点的具体习题集。" },
+            { q: `思考题：在日常生活中，我们在哪些时候会用到《${name}》这个概念？`, a: "例如去超市买东西称重、分零食、计算时间、拼搭积木等，都是该数学概念的现实投影。" },
+            { q: "概念速记：请试着闭上眼睛，口头复述什么是这个概念的定义和计算方法。", a: "可以参考上方“概念辅导重点”中的定义描述。" }
+          ];
+        }
+      } else if (subj === "英语") {
+        exercises = [
+          { q: "Grammar Check: Choose the correct word in parentheses:\n- There is (a / an) orange on the plate.\n- I have (a / an) book about dinosaurs.", a: "orange 以元音音素开头，用 an；book 以辅音音素开头，用 a。" },
+          { q: "Vocabulary & Spelling: Write the plural forms for the following nouns:\n- child -> ()\n- mouse -> ()\n- apple -> ()", a: "child -> children (不规则复数); mouse -> mice (不规则复数); apple -> apples (规则复数)。" },
+          { q: "Verb Tense: Change the verbs in the parentheses into Simple Past Tense:\n- Yesterday, he (go) to the park and (run) for a mile.", a: "go 的过去式是不规则的 went；run 的过去式是不规则的 ran。完整句子：Yesterday, he went to the park and ran for a mile." }
+        ];
+      } else if (subj === "语文") {
+        exercises = [
+          { q: "阅读理解技巧：我们在阅读文章时，‘中心句’（核心句）的作用是什么？它通常出现在哪里？", a: "作用是概括整段或整篇文章的中心思想。它通常出现在段落的开头（起总领作用）、结尾（起总结作用）或中间。" },
+          { q: "句式扩写与连词：用合适的关联词将下面两句话合并为一句话：\n- 句子1：天气下起了大雨。\n- 句子2：我们的升旗仪式改在了室内进行。", a: "可以用因果关联词：因为天气下起了大雨，所以我们的升旗仪式改在了室内进行。（或者：既然下起了大雨，那么升旗仪式就改在室内进行。）" },
+          { q: "标点纠错：找出下列句子中引号或冒号使用不正确的一处并修改：\n- 妈妈说：“今天晚饭吃红烧肉”。", a: "在汉语直接引语中，句末的句号通常应该放在后引号的【里面】。应修改为：妈妈说：“今天晚饭吃红烧肉。”" }
+        ];
+      } else {
+        exercises = [
+          { q: `概念问答：根据本节所学内容，你能用自己的话向家人解释什么是《${name}》吗？`, a: "参考卡片上方的“概念辅导重点”描述，用通俗易懂的语言进行解释即可。" },
+          { q: "生活观察：在我们生活的周围（或自然界中），能找到哪些与这个概念相符的实例或现象？", a: "例如重力、植物生长适应性、光的折射等，大自然是最好的科学实验室。" },
+          { q: "实验思考：如果我们要设计一个实验来验证这个科学规律，我们需要控制什么变量？", a: "通常需要控制单一变量，即除了我们想要研究的那个因素之外，保持其他所有实验条件完全一致。" }
+        ];
+      }
+      
+      return `
+        <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+          ${exercises.map((ex, i) => `
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 0.6rem; last-child: { border: none; }">
+              <div style="font-weight: 500; color: #f3f4f6; margin-bottom: 0.25rem;">📝 练习题 ${i+1}：${ex.q}</div>
+              <details style="margin-top: 0.2rem; cursor: pointer;">
+                <summary style="font-size: 0.75rem; color: #10b981; outline: none; user-select: none;">🔍 点击查看参考答案</summary>
+                <div style="margin-top: 0.3rem; font-size: 0.8rem; color: #a7f3d0; line-height: 1.4; padding-left: 0.5rem; border-left: 2px solid #10b981; background: rgba(16, 185, 129, 0.05); padding-top: 0.2rem; padding-bottom: 0.2rem;">
+                  <strong>解题思路：</strong>${ex.a}
+                </div>
+              </details>
+            </div>
+          `).join('')}
+          
+          <div style="margin-top: 0.4rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 0.6rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span style="font-size: 0.72rem; color: var(--text-secondary);">💡 需要更多打印版练习题/作业纸？</span>
+            <button class="filter-btn" style="padding: 0.2rem 0.5rem; font-size: 0.7rem; background-color: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.4); color: #34d399;" onclick="copyAIPrompt('${id}')">📋 复制 AI 出题 Prompt</button>
+          </div>
+        </div>
+      `;
+    }
+
+    window.copyAIPrompt = function(topicId) {
+      const topic = state.topicMap[topicId];
+      if (!topic) return;
+      
+      const promptText = `你是一位中国江苏省苏州市的优秀小学教师，请根据“苏教版/译林版”大纲，针对知识点【${topic.name}】（适合 ${topic.ageRangeStart ?? 6}-${topic.ageRangeEnd ?? 12} 岁孩子，学科：${topic.subject}），出 5 道贴合日常生活场景的趣味作答题，并附带详细的解题步骤、参考答案与家长讲解辅导要点。`;
+      
+      navigator.clipboard.writeText(promptText).then(() => {
+        alert(`已成功复制知识点【${topic.name}】的 AI 出题 Prompt！\n您现在可以将其粘贴到 ChatGPT、Gemini、Claude 或 DeepSeek 中直接让其出题打印作业纸了！`);
+      }).catch(err => {
+        console.error("复制失败:", err);
+        alert("复制失败，请手动在浏览器设置中开启剪切板权限。");
+      });
+    };
+
+    function selectTopic(topicId) {
+      state.selectedTopicId = topicId;
+      const topic = state.topicMap[topicId];
+      const panel = document.getElementById('detail-panel');
+      
+      const prereqs = state.prereqMap[topicId] || [];
+      const unlocks = state.unlockMap[topicId] || [];
+      
+      const activeProfile = state.profiles.find(p => p.id === state.activeProfileId);
+      const childName = activeProfile ? activeProfile.name : "孩子";
+      
+      const unmasteredPrereqs = [];
+      prereqs.forEach(p => {
+        const status = state.mastery[p.prerequisiteId] || 'unmarked';
+        if (status !== 'mastered') {
+          unmasteredPrereqs.push(state.topicMap[p.prerequisiteId]);
+        }
+      });
+      
+      const assessmentHtml = topic.assessmentPrompt ? 
+        topic.assessmentPrompt.replace(/{{name}}/g, `<strong style="color: #fff; text-shadow: 0 0 5px rgba(59, 130, 246, 0.4);">${childName}</strong>`) : 
+        '无口头提问模版';
+        
+      const status = state.mastery[topicId] || 'unmarked';
+      const pblHtml = generatePBLCard(topicId, prereqs);
+      
+      panel.innerHTML = `
+        <div class="detail-card">
+          <div class="detail-header">
+            <div class="detail-title-area">
+              <h2>${topic.name}</h2>
+              <div class="detail-metadata">
+                <span class="meta-tag">学科: <strong>${topic.subject}</strong></span>
+                <span class="meta-tag">领域: <strong>${topic.domain ?? '默认'}</strong></span>
+                <span class="meta-tag">适合年龄: <strong>${topic.ageRangeStart ?? '?'}-${topic.ageRangeEnd ?? '?'} 岁</strong></span>
+                <span class="meta-tag">核心类型: <strong>${topic.type}</strong></span>
+                ${topic.centrality ? `<span class="meta-tag">核心权重: <strong>${topic.centrality.toFixed(3)}</strong></span>` : ''}
+              </div>
+            </div>
+            
+            <div class="mastery-controls-group">
+              <button class="mastery-btn ${status === 'mastered' ? 'active-mastered' : ''}" onclick="setMasteryStatus('${topicId}', 'mastered')">
+                ✓ 已通关
+              </button>
+              <button class="mastery-btn ${status === 'practice' ? 'active-practice' : ''}" onclick="setMasteryStatus('${topicId}', 'practice')">
+                ⚠ 需要练习
+              </button>
+            </div>
+          </div>
+          
+          <div class="detail-body">
+            <!-- Diagnostics Alert if prerequisites are unmastered -->
+            ${unmasteredPrereqs.length > 0 ? `
+              <div class="diagnostic-warning">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <span><strong>自适应诊断警告</strong>：${childName} 在挑战本项目前，有 <strong>${unmasteredPrereqs.length} 个前置知识点</strong> 尚未通关！建议先完成下方红色警告的概念。</span>
+              </div>
+            ` : ''}
+          
+            <div>
+              <div class="section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                概念辅导重点
+              </div>
+              <p class="desc-text">${topic.description}</p>
+            </div>
+            
+            ${topic.evidence && topic.evidence.length > 0 ? `
+              <div>
+                <div class="section-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                  家长观察依据 (掌握证据)
+                </div>
+                <ul class="evidence-list">
+                  ${topic.evidence.map(e => `<li>${e}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+            
+            <div>
+              <div class="section-title" style="color: #60a5fa">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                亲子诊断随口问 (互动评估)
+              </div>
+              <div class="prompt-box">
+                ${assessmentHtml}
+              </div>
+            </div>
+
+            <div>
+              <div class="section-title" style="color: #10b981">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                随堂自主练习 (课后作业题)
+              </div>
+              <div class="prompt-box" style="border-color: rgba(16, 185, 129, 0.3); background-color: rgba(16, 185, 129, 0.03); color: var(--text-primary);">
+                ${generateExercisesHtml(topic)}
+              </div>
+            </div>
+            
+            ${topic.standards && topic.standards.length > 0 ? `
+              <div>
+                <div class="section-title" style="font-size: 0.85rem; margin-top: 0.5rem;">
+                  对齐的教学标准编码: ${topic.standards.map(s => `<span class="standard-badge">${s}</span>`).join('')}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- STEAM Card Section -->
+        ${pblHtml}
+
+        <div class="relationship-grid">
+          <div class="relation-card">
+            <div class="section-title" style="color: #60a5fa">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              前置技能 Prerequisites (${prereqs.length})
+            </div>
+            <div class="relation-list">
+              ${prereqs.length === 0 ? '<div style="color: var(--text-secondary); font-size: 0.85rem;">无前置知识要求（入门概念）</div>' : 
+                prereqs.map(p => {
+                  const pre = state.topicMap[p.prerequisiteId];
+                  const preStatus = state.mastery[pre.id] || 'unmarked';
+                  return `
+                    <div class="relation-item" onclick="selectAndScroll('${pre.id}')" style="border-left-color: var(--color-${pre.subject.split(' ')[0].toLowerCase()})">
+                      <div class="relation-item-left">
+                        <div class="relation-name">
+                          <span class="status-dot ${preStatus}"></span>
+                          ${pre.name}
+                        </div>
+                        ${p.reason ? `<div class="relation-reason">“${p.reason}”</div>` : ''}
+                      </div>
+                      <div class="relation-badge-group">
+                        <span class="subject-badge ${getSubjectClass(pre.subject)}">${pre.subject.substring(0,2)}</span>
+                        ${preStatus !== 'mastered' ? `<span class="warning-badge">⚠️ 未通关</span>` : ''}
+                      </div>
+                    </div>
+                  `;
+                }).join('')
+              }
+            </div>
+          </div>
+
+          <div class="relation-card">
+            <div class="section-title" style="color: #c084fc">
+              解锁后置 Unlocks (${unlocks.length})
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </div>
+            <div class="relation-list">
+              ${unlocks.length === 0 ? '<div style="color: var(--text-secondary); font-size: 0.85rem;">该概念为终端概念，暂无后续解锁概念</div>' : 
+                unlocks.map(u => {
+                  const target = state.topicMap[u.topicId];
+                  const targetStatus = state.mastery[target.id] || 'unmarked';
+                  return `
+                    <div class="relation-item" onclick="selectAndScroll('${target.id}')" style="border-left-color: var(--color-${target.subject.split(' ')[0].toLowerCase()})">
+                      <div class="relation-item-left">
+                        <div class="relation-name">
+                          <span class="status-dot ${targetStatus}"></span>
+                          ${target.name}
+                        </div>
+                        ${u.reason ? `<div class="relation-reason">“${u.reason}”</div>` : ''}
+                      </div>
+                      <div class="relation-badge-group">
+                        <span class="subject-badge ${getSubjectClass(target.subject)}">${target.subject.substring(0,2)}</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('')
+              }
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    window.setMasteryStatus = function(topicId, status) {
+      if (state.mastery[topicId] === status) {
+        state.mastery[topicId] = 'unmarked';
+      } else {
+        state.mastery[topicId] = status;
+      }
+      saveState();
+      renderList();
+      selectTopic(topicId);
+    };
+
+    window.selectAndScroll = function(topicId) {
+      selectTopic(topicId);
+      renderList();
+      const listItems = document.querySelectorAll('.topic-item');
+      for (const item of listItems) {
+        if (item.innerHTML.includes(state.topicMap[topicId].name)) {
+          item.classList.add('selected');
+          item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          break;
+        }
+      }
+    };
+
+    // Listeners
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      state.searchQuery = e.target.value;
+      renderList();
+    });
+
+    // Draggable Resizers logic
+    function initResizers() {
+      const container = document.querySelector('.container');
+      const leftResizer = document.getElementById('left-resizer');
+      const rightResizer = document.getElementById('right-resizer');
+      const leftSidebar = document.getElementById('left-sidebar');
+      const detailPanel = document.getElementById('detail-panel');
+
+      leftResizer.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        container.classList.add('dragging');
+        leftResizer.classList.add('dragging');
+        const startX = e.clientX;
+        const startWidth = leftSidebar.clientWidth;
+
+        function onMouseMove(moveEvent) {
+          const deltaX = moveEvent.clientX - startX;
+          const newWidth = Math.max(280, Math.min(600, startWidth + deltaX));
+          container.style.setProperty('--left-width', `${newWidth}px`);
+        }
+
+        function onMouseUp() {
+          container.classList.remove('dragging');
+          leftResizer.classList.remove('dragging');
+          window.removeEventListener('mousemove', onMouseMove);
+          window.removeEventListener('mouseup', onMouseUp);
+          window.dispatchEvent(new Event('resize'));
+        }
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+      });
+
+      rightResizer.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        container.classList.add('dragging');
+        rightResizer.classList.add('dragging');
+        const startX = e.clientX;
+        const startWidth = detailPanel.clientWidth;
+
+        function onMouseMove(moveEvent) {
+          const deltaX = moveEvent.clientX - startX;
+          const newWidth = Math.max(350, Math.min(800, startWidth - deltaX));
+          container.style.setProperty('--right-width', `${newWidth}px`);
+        }
+
+        function onMouseUp() {
+          container.classList.remove('dragging');
+          rightResizer.classList.remove('dragging');
+          window.removeEventListener('mousemove', onMouseMove);
+          window.removeEventListener('mouseup', onMouseUp);
+          window.dispatchEvent(new Event('resize'));
+        }
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+      });
+    }
+
+    // Call initResizers on load
+    window.addEventListener('DOMContentLoaded', initResizers);
+
+    // Start
+    loadData();
+  </script>
+</body>
+</html>
