@@ -146,9 +146,9 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
         path = parsed_url.path
         query = urllib.parse.parse_qs(parsed_url.query)
 
-        # Redirect root to explorer.html
+        # Redirect root to index.html
         if path == "/":
-            self.path = "/explorer.html"
+            self.path = "/index.html"
             return super().do_GET()
 
         # API: Get Profiles

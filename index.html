@@ -1263,6 +1263,9 @@
   </div>
 
   <script>
+    // Detect static mode (GitHub Pages or local file protocol)
+    const isStaticMode = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:';
+
     // State
     let state = {
       topics: [],
@@ -1358,6 +1361,30 @@
 
     // Load API Profiles
     async function initProfiles() {
+      if (isStaticMode) {
+        let localProfiles = JSON.parse(localStorage.getItem('marble_profiles') || '[]');
+        if (localProfiles.length === 0) {
+          localProfiles = [{ id: 'lee_static', name: 'lee (离线演示)', grade: 6 }];
+          localStorage.setItem('marble_profiles', JSON.stringify(localProfiles));
+        }
+        let activeId = localStorage.getItem('marble_active_profile_id') || 'lee_static';
+        state.profiles = localProfiles;
+        state.activeProfileId = activeId;
+        
+        await loadActiveProfileProgress();
+        renderProfileDropdown();
+        
+        const activeProfile = state.profiles.find(p => p.id === state.activeProfileId);
+        if (activeProfile && activeProfile.grade) {
+          state.activeGrade = activeProfile.grade.toString();
+        } else {
+          state.activeGrade = 'all';
+        }
+        updateGradeFilterUI();
+        updateSubtitle();
+        return;
+      }
+      
       const res = await fetch('/api/profiles').then(r => r.json());
       state.profiles = res.profiles;
       state.activeProfileId = res.activeProfileId;
@@ -1376,6 +1403,18 @@
     }
 
     async function loadActiveProfileProgress() {
+      if (isStaticMode) {
+        state.mastery = JSON.parse(localStorage.getItem(`marble_mastery_${state.activeProfileId}`) || '{}');
+        
+        // Synchronize mastery keys with loaded topics
+        state.topics.forEach(t => {
+          if (!state.mastery[t.id]) {
+            state.mastery[t.id] = 'unmarked';
+          }
+        });
+        return;
+      }
+      
       const res = await fetch(`/api/mastery?profileId=${state.activeProfileId}`).then(r => r.json());
       state.mastery = res;
       
@@ -1388,6 +1427,12 @@
     }
 
     async function saveState() {
+      if (isStaticMode) {
+        localStorage.setItem(`marble_mastery_${state.activeProfileId}`, JSON.stringify(state.mastery));
+        calculateProgress();
+        return;
+      }
+      
       await fetch('/api/mastery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1419,6 +1464,27 @@
       await saveState();
       
       state.activeProfileId = profileId;
+      
+      if (isStaticMode) {
+        localStorage.setItem('marble_active_profile_id', profileId);
+        await loadActiveProfileProgress();
+        
+        const activeProfile = state.profiles.find(p => p.id === profileId);
+        if (activeProfile && activeProfile.grade) {
+          state.activeGrade = activeProfile.grade.toString();
+        } else {
+          state.activeGrade = 'all';
+        }
+        updateGradeFilterUI();
+        updateSubtitle();
+        
+        calculateProgress();
+        renderList();
+        if (state.selectedTopicId) {
+          selectTopic(state.selectedTopicId);
+        }
+        return;
+      }
       
       // Sync switch to server
       await fetch('/api/profiles/switch', {
@@ -1456,6 +1522,15 @@
         return;
       }
       
+      if (isStaticMode) {
+        const newProf = { id: 'prof_' + Date.now(), name: name.trim(), grade: gradeNum };
+        state.profiles.push(newProf);
+        localStorage.setItem('marble_profiles', JSON.stringify(state.profiles));
+        await switchProfile(newProf.id);
+        renderList();
+        return;
+      }
+      
       await fetch('/api/profiles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1478,6 +1553,32 @@
       
       const activeName = state.profiles.find(p => p.id === state.activeProfileId).name;
       if (confirm(`确定要永久删除《${activeName}》的档案和通关进度吗？此操作将永久抹除服务器上此项纪录。`)) {
+        if (isStaticMode) {
+          state.profiles = state.profiles.filter(p => p.id !== state.activeProfileId);
+          localStorage.setItem('marble_profiles', JSON.stringify(state.profiles));
+          const nextProf = state.profiles[0];
+          localStorage.setItem('marble_active_profile_id', nextProf.id);
+          state.activeProfileId = nextProf.id;
+          
+          await loadActiveProfileProgress();
+          renderProfileDropdown();
+          
+          const activeProfile = state.profiles.find(p => p.id === state.activeProfileId);
+          if (activeProfile && activeProfile.grade) {
+            state.activeGrade = activeProfile.grade.toString();
+          } else {
+            state.activeGrade = 'all';
+          }
+          updateGradeFilterUI();
+          updateSubtitle();
+          calculateProgress();
+          renderList();
+          if (state.selectedTopicId) {
+            selectTopic(state.selectedTopicId);
+          }
+          return;
+        }
+        
         await fetch('/api/profiles/delete', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -2930,6 +3031,9 @@ window.copyAIPrompt = function(topicId) {
       `;
       
       try {
+        if (isStaticMode) {
+          throw new Error("此版本为 GitHub Pages 离线演示版，不支持连接本地 AI 模型。请在本地命令行运行 python server.py 以启用完整 AI 出题功能！");
+        }
         const res = await fetch("/api/generate-questions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -2993,6 +3097,9 @@ window.copyAIPrompt = function(topicId) {
       });
 
       try {
+        if (isStaticMode) {
+          throw new Error("此版本为 GitHub Pages 离线演示版，不支持连接本地 AI 模型。请在本地命令行运行 python server.py 以启用完整 AI 出题功能！");
+        }
         const extraContext = sampleEq
           ? `\n\n请参考以下历年真题的题型风格和难度，出一道同类型的变式题（不要与原题完全相同）：\n原题示例（${sampleEq.year || '历年'}·${sampleEq.questionType || ''}·${sampleEq.difficulty || ''}）：\n${sampleEq.questionText || ''}`
           : '';
