@@ -1,125 +1,65 @@
-# Marble Skill Taxonomy
+# Marble 3D 旋转课程图谱与家庭自适应诊断系统 (Marble3D)
 
-An open, structured taxonomy of **what children learn** across the primary/elementary years — decomposed into fine-grained "micro-topics", wired into a prerequisite graph, and aligned to national curriculum standards. Produced by [Marble](https://withmarble.com).
+> **项目定位**：专为小升初/分班考研发的 K-12 自适应诊断与 3D 课程拓扑图谱系统。以三维漏斗形螺旋知识网络，直观展示学科演进路径，支持多孩子档案进度管理、历年小升初真题训练及 AI 变式题一键出题。
 
-> **Version:** `v1` · **Topics:** 1,590 · **Prerequisite edges:** 3,221 · **Subjects:** 8
+---
 
-## See it
+## 🌟 核心特色与视觉设计
 
-![The taxonomy as a rotating 3D graph: every dot a micro-topic, colored by subject, wired by prerequisites](media/curriculum-viz.gif)
+### 1. 🧬 3D 漏斗形螺旋知识树 (Funnel-Shaped 3D Spiral Tree)
+*   **高度（Y轴）代表年级**：底端汇聚一年级核心概念，顶端舒展出六年级进阶知识，空间上呈现“树状漏斗结构”，生动体现知识广度与深度随学段递增而扩展。
+*   **轴向自转锁定**：相机的垂直旋转角度被智能约束，确保底部（低年级）和顶端（高年级）的空间定位永远固定，杜绝了翻转错乱。用户可以 360 度水平拖动圆柱进行无死角观察。
 
-Every dot is a micro-topic, colored by subject; height is age; each thread is a prerequisite ([full-quality video](media/curriculum-viz.mp4)). Explore it interactively at [withmarble.com/curriculum](https://withmarble.com/curriculum) — tap any concept to trace everything a learner must master before it.
+### 2. ✨ 霓虹发光学习路径 (Neon-Glow Pathways)
+*   **前置路径金黄发光 (Prerequisites)**：点击任意知识点时，其所有前置依赖路线会以**高亮金黄色霓霓虹光束**绘制，清晰指引孩子通关所需的“前置条件”。
+*   **解锁路径紫色发光 (Unlocks)**：节点本身及被它解锁的后续路线呈**亮紫色霓虹光束**绘制。
+*   **星空背景雾化**：非相关连线和远景节点采用景深透明度衰减（Depth Fading）处理，渲染出深邃的星空雾化美感。
 
+### 3. 🏷️ 2D 碰撞避让与物理像素对齐 (Pixel-Perfect Text Renderer)
+*   **无重影渲染**：采用 `Math.round(val * dpr) / dpr` 算法强制对齐物理像素网格，非聚焦文字阴影严格限制在 `1 / dpr`（1个物理屏幕像素），在高分屏上字迹清晰锐利。
+*   **垂直滑动避让**：开启「显示所有标签」时，若 2D 投影发生重合，系统会垂直向上推移错开（最多3次），若依旧重叠则自动隐去，彻底告别密铺文字重影与重合乱码。
 
-## What this is
+### 4. 📄 历年小升初真题实战与 AI 出题 (Exam Integration & AI Generator)
+*   **真题智能挂载**：针对大纲中的六年级核心考点，高密度注入了 57 道精选仿真真题，拥有真题的粒子在 3D 模式下会呈现小橙点或 📄 徽标。
+*   **AI 变式出题**：详情面板集成答案一键折叠显隐，并拥有「🪄 AI 仿真出题」功能，后台自动根据选中的真题题干和风格，由大模型自动生成相似的变式题以作针对性巩固。
 
-Most curriculum data is either a flat list of standards or locked inside a product. This dataset is a **connected graph of learning**:
+---
 
-- **1,590 micro-topics** — a single, teachable idea (e.g. *"Building sentences"*, *"Apparent brightness of stars"*), each with a plain-language description, mastery **evidence** criteria, a type (conceptual / procedural / representational / language / meta), a subject + domain, and an approximate age range.
-- **3,221 prerequisite dependencies** — a directed acyclic graph: *"topic X depends on prerequisite Y"*, each edge tagged `hard`/`soft` and carrying a one-line **reason**.
-- **Curriculum alignment** — each micro-topic links to the standards it was distilled from (NGSS, Common Core, the UK National Curriculum, and more).
-- **Domain clusters** — 183 parent-friendly one-paragraph summaries per (subject, domain, age band).
-
-### Subjects
-
-| Subject | Topics |
-|---|---:|
-| Science | 547 |
-| Mathematics | 503 |
-| English | 286 |
-| History | 90 |
-| Personal & Social Development | 88 |
-| Life Skills | 37 |
-| Computing | 21 |
-| Learning to Learn | 18 |
-
-## Files
-
-All data lives in [`data/`](data/) as UTF-8 JSON. See [`schema/`](schema/) for JSON Schemas and [`manifest.json`](data/manifest.json) for counts + SHA-256 checksums.
-
-| File | What it holds |
-|---|---|
-| [`data/topics.json`](data/topics.json) | The micro-topics (graph **nodes**). |
-| [`data/dependencies.json`](data/dependencies.json) | Prerequisite **edges** (`topicId` depends on `prerequisiteId`). |
-| [`data/curriculum-standards.json`](data/curriculum-standards.json) | The source curriculum standards, grouped by curriculum. |
-| [`data/clusters.json`](data/clusters.json) | Parent-friendly domain summaries. |
-| [`data/manifest.json`](data/manifest.json) | Counts, per-subject breakdown, per-file checksums. |
-
-### A topic
-
-```json
-{
-  "id": "mt_N8CpN1EJrP",
-  "type": "CONCEPTUAL",
-  "subject": "English",
-  "domain": "Grammar & Punctuation",
-  "name": "Building sentences",
-  "description": "Understand that words combine to make sentences — a sentence expresses a complete thought…",
-  "ageRangeStart": 4,
-  "ageRangeEnd": 6,
-  "centrality": 0.257,
-  "evidence": [
-    "Distinguish between complete sentences and fragments",
-    "Compose a complete sentence with a subject and verb"
-  ],
-  "assessmentPrompt": "If {{name}} says something like \"The dog\", can they tell you that's not a complete sentence…?",
-  "standards": ["ccss-ela:L.K.1f", "uk-nc-2013:Eng.App2.Y1.Sent.1"]
-}
-```
-
-- `id` — stable identifier (`mt_…`), referenced by dependencies and by neighbours.
-- `standards` — keys into `curriculum-standards.json` (`"<curriculum-slug>:<code>"`).
-- `assessmentPrompt` — a natural-language check for the idea. Contains a `{{name}}` placeholder (the child's name); substitute or strip before display.
-
-### A dependency
-
-```json
-{ "topicId": "mt__00ZSLnB7p", "prerequisiteId": "mt_VBl1T1sFCM", "strength": "hard",
-  "reason": "Must understand vibrations make sound before finding volume patterns" }
-```
-
-`topicId` **depends on** `prerequisiteId`. Reverse the edge to get "unlocks".
-
-## Using it
-
-Pure data — no runtime, no dependencies. Load the JSON and go.
-
-```js
-import topics from './data/topics.json' with { type: 'json' };
-import deps from './data/dependencies.json' with { type: 'json' };
-
-const byId = new Map(topics.topics.map(t => [t.id, t]));
-const prereqs = deps.dependencies
-  .filter(d => d.topicId === 'mt_N8CpN1EJrP')
-  .map(d => byId.get(d.prerequisiteId).name);
-```
-
-Validate structure + referential integrity:
+## 📁 核心项目文件清单
 
 ```bash
-node scripts/validate.mjs
+├── data/
+│   ├── topics_cn.json        # 175个核心知识大纲节点及挂载的仿真真题
+│   └── dependencies_cn.json  # 节点之间的拓扑依赖关系连线
+├── scripts/
+│   ├── generate_synthetic_exams.py   # AI 真题自动生成与注入脚本
+│   └── import_and_align_exams.py     # 外部真题文档智能导入对齐脚本
+├── explorer.html            # 3D 螺旋星云/树状双轨课程图谱前端主界面
+├── server.py                # Tornado 本地 Web 服务与 AI 出题 API 接口
+├── project.md               # 项目技术大纲说明书
+├── memory.md                # 踩坑经验与技术决策日志
+└── .gitignore               # 已配置过滤本地 taxonomy.db 个人进度库及临时备份
 ```
 
-## License
+---
 
-This dataset is **multi-licensed** — read this before you use or redistribute it.
+## 🚀 本地快速运行指南
 
-| Layer | License |
-|---|---|
-| **The database** — the collection, structure, IDs, topic↔topic and topic↔standard relationships | [**ODbL 1.0**](LICENSE) — free for research **and** commercial use, **attribution** required, **share-alike** (derivative *databases* must stay open under ODbL). |
-| **The textual content Marble authored** — topic `description`/`name`/`evidence`/`assessmentPrompt`, dependency `reason`s, cluster `summary`s | [**CC BY-SA 4.0**](LICENSE-CONTENT) — same spirit: attribution + share-alike. |
-| **`curriculum-standards.json`** — extracted from third-party frameworks | **Not** Marble's to relicense. Each source is under **its own upstream license** — see [**PROVENANCE.md**](PROVENANCE.md). |
+### 1. 启动 Web 服务
+确保您的系统安装了 Python 3.10+，然后在项目根目录下运行：
+```bash
+python server.py
+```
+这将在本地启动 Web 服务器并初始化数据库连接（首次启动会在 `data/` 下自动生成 `taxonomy.db` 进度库）。
 
-**Why share-alike + still commercial-friendly:** ODbL distinguishes a *derivative database* (extend/modify the taxonomy → must stay open) from a *produced work* (use it inside a product, model, or app → stays yours). So you can build a commercial product on this without open-sourcing your product; you only owe back improvements to the *taxonomy itself*.
+### 2. 浏览器体验
+在现代浏览器中打开以下链接，即可进入 Marble3D 系统：
+```text
+http://127.0.0.1:8000/
+```
 
-### Attribution
-
-Any use must credit:
-
-> Marble Skill Taxonomy (v1) · © Generative Spark, Inc. (Marble) · https://withmarble.com · licensed under ODbL 1.0 (database) and CC BY-SA 4.0 (content).
-
-Plus the upstream notices in [PROVENANCE.md](PROVENANCE.md) for any curriculum standards you use. See [CITATION.cff](CITATION.cff) for a formal citation.
-
-## What's *not* here
-
-Deliberately excluded from this release: semantic embeddings (derived, recomputable) and any per-child / user data (never published). See [CHANGELOG.md](CHANGELOG.md).
+### 3. 核心交互步骤
+1.  **切换视图**：右上角可切换 `🌐 3D 星空` 与 `📋 学科树形`，切换到树形视图时，3D 专属参数按钮将自动隐藏。
+2.  **筛选节点**：左侧面板可按**学科**（数学/语文/英语等）或**年级**进行联动筛选。
+3.  **通关标记**：选中节点后，可在右侧卡片中点击“已掌握”或“需要练习”，保存状态会立即自动同步至本地 SQLite 数据库。
+4.  **真题实战**：选中六年级考点（如“分数乘法”），展开右侧“历年真题实战”板块查阅，点击“查看答案”或使用“AI 仿真出题”获取变式练习。
