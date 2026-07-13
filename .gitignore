@@ -3,3 +3,13 @@ node_modules/
 *.log
 .env
 .env.*
+
+# Project Database & backups
+data/taxonomy.db
+backups/
+data/backups/
+__pycache__/
+
+# Large images and mockups
+*Marble_*.png
+curriculum_3d_mockup_*.jpg

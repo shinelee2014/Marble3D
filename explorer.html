@@ -952,6 +952,98 @@
       border-color: #34d399;
     }
 
+    /* ── 历年真题实战 Styles ──────────────────────────────────── */
+    .exam-section {
+      margin-top: 0.2rem;
+    }
+    .exam-section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: #fb923c;
+      margin-bottom: 0.6rem;
+      gap: 0.3rem;
+    }
+    .exam-card {
+      background: rgba(251, 146, 60, 0.05);
+      border: 1px solid rgba(251, 146, 60, 0.2);
+      border-radius: 8px;
+      padding: 0.7rem 0.9rem;
+      margin-bottom: 0.5rem;
+      transition: border-color 0.2s;
+    }
+    .exam-card:hover {
+      border-color: rgba(251, 146, 60, 0.45);
+    }
+    .exam-card-meta {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .exam-meta-pill {
+      background: rgba(251, 146, 60, 0.12);
+      color: #fb923c;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 0.68rem;
+      font-weight: 600;
+    }
+    .exam-question-text {
+      font-size: 0.83rem;
+      color: var(--text-primary);
+      line-height: 1.6;
+      margin-bottom: 0.4rem;
+      white-space: pre-wrap;
+    }
+    .exam-answer-toggle {
+      background: none;
+      border: 1px solid rgba(251, 146, 60, 0.3);
+      border-radius: 4px;
+      color: #fb923c;
+      font-size: 0.72rem;
+      padding: 2px 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .exam-answer-toggle:hover {
+      background: rgba(251, 146, 60, 0.15);
+    }
+    .exam-answer-box {
+      display: none;
+      font-size: 0.8rem;
+      color: #34d399;
+      background: rgba(52, 211, 153, 0.06);
+      border-radius: 4px;
+      padding: 0.4rem 0.6rem;
+      margin-top: 0.4rem;
+      white-space: pre-wrap;
+    }
+    .exam-ai-btn {
+      background: rgba(251, 146, 60, 0.12);
+      border: 1px solid rgba(251, 146, 60, 0.3);
+      border-radius: 4px;
+      color: #fb923c;
+      font-size: 0.72rem;
+      padding: 2px 10px;
+      cursor: pointer;
+      margin-left: 0.4rem;
+      transition: all 0.15s;
+    }
+    .exam-ai-btn:hover {
+      background: rgba(251, 146, 60, 0.25);
+      border-color: #fb923c;
+    }
+    .exam-badge-canvas {
+      /* badge drawn directly on 3D canvas, no CSS needed */
+    }
+
     /* Three State Panel Buttons and Cards */
     .three-state-btn {
       width: 100%;
@@ -1109,15 +1201,27 @@
     <div class="visualization-area">
       <!-- View Toggle Switcher -->
       <div class="view-toggle-container">
+        <!-- 3D Starfield Mode Button -->
         <button class="toggle-btn active" id="view-3d-btn" onclick="switchView('3d')">🌐 3D 星空</button>
+        
+        <!-- 3D Specific Control Group -->
+        <div class="3d-controls-group" id="controls-3d-group" style="display: inline-flex; align-items: center; gap: 8px; margin-left: 8px;">
+          <button class="toggle-btn" id="toggle-relations-btn" onclick="toggleAllRelations()" style="display: inline-flex; align-items: center; gap: 4px;">
+            <span>🕸️</span> 显示关系连线
+          </button>
+          <button class="toggle-btn" id="toggle-labels-btn" onclick="toggleAllLabels()" style="display: inline-flex; align-items: center; gap: 4px;">
+            <span>🏷️</span> 显示所有标签
+          </button>
+          <button class="toggle-btn" id="reset-view-btn" onclick="reset3DView()" style="display: inline-flex; align-items: center; gap: 4px;">
+            <span>🔄</span> 重置视图
+          </button>
+        </div>
+        
+        <!-- Divider -->
+        <span class="toolbar-divider" style="width: 1px; height: 16px; background: rgba(255,255,255,0.15); margin: 0 12px; align-self: center;"></span>
+        
+        <!-- Tree View Mode Button at the end -->
         <button class="toggle-btn" id="view-tree-btn" onclick="switchView('tree')">📋 学科树形</button>
-        <span class="toolbar-divider" style="width: 1px; height: 16px; background: rgba(255,255,255,0.15); margin: 0 8px; align-self: center;"></span>
-        <button class="toggle-btn" id="toggle-relations-btn" onclick="toggleAllRelations()" style="display: inline-flex; align-items: center; gap: 4px;">
-          <span>🕸️</span> 显示关系连线
-        </button>
-        <button class="toggle-btn" id="reset-view-btn" onclick="reset3DView()" style="display: inline-flex; align-items: center; gap: 4px;">
-          <span>🔄</span> 重置视图
-        </button>
       </div>
 
       <div class="viz-canvas-container" id="canvas-container">
@@ -1171,6 +1275,7 @@
       searchQuery: '',
       selectedTopicId: null,
       showAllRelations: false, // Whether to highlight all dependency links in 3D graph
+      showAllLabels: false,    // Whether to draw all topic labels in 3D graph
       
       // Multi-profile Management
       profiles: [],
@@ -1597,17 +1702,25 @@
         const age = t.ageRangeStart ?? 6;
         const normalizedAge = (age - 6) / 8; // ages 6-14 mapped to 0-1
         
-        const z = -250 + normalizedAge * 500; // -250 to 250
+        // Height axis (Y-axis) represents Grade Progression: bottom (Grade 1 / age 6) to top (Grade 6 / age 14)
+        // Canvas coordinate Y-axis is downward-pointing, so:
+        // normalizedAge = 0 maps to Y = 160 (bottom screen)
+        // normalizedAge = 1 maps to Y = -160 (top screen)
+        const y = 160 - normalizedAge * 320;
         
         // Base angle for subject column + spiral twist based on age
         const baseAngle = subjectAngles[t.subject];
-        const spiralTwist = normalizedAge * Math.PI * 1.5; // spiral twist
+        const spiralTwist = normalizedAge * Math.PI * 0.9; // spiral twist
         const angle = baseAngle + spiralTwist;
         
-        // Radius of cylinder
-        const r = 240 + Math.sin(normalizedAge * Math.PI * 2) * 40; 
+        // Funnel shape: radius grows with normalizedAge (grade progress)
+        // From a narrow base (r = 45) to a wide canopy (r = 210)
+        // Plus a subtle wavy organic distortion
+        const r = 45 + normalizedAge * 165 + Math.sin(normalizedAge * Math.PI) * 15; 
+        
+        // X and Z coordinates form the circular section of the funnel
         const x = Math.cos(angle) * r;
-        const y = Math.sin(angle) * r;
+        const z = Math.sin(angle) * r;
         
         return {
           id: t.id,
@@ -1798,6 +1911,8 @@
         }
       }
       
+      viz.angleX = Math.max(-0.25, Math.min(0.6, viz.angleX)); // Force clamp pitch angle to keep funnel upright
+      
       const cosX = Math.cos(viz.angleX);
       const sinX = Math.sin(viz.angleX);
       const cosY = Math.cos(viz.angleY);
@@ -1906,17 +2021,33 @@
             const edgeDepthFactor = (midRZ - minZ) / (maxZ - minZ || 1);
             const edgeFogAlpha = 0.3 + edgeDepthFactor * 0.7;
             
-            if (edge.source === state.selectedTopicId || (state.selectedDescendants && state.selectedDescendants.has(edge.source))) {
-              ctx.strokeStyle = '#c084fc'; // Unlock path (purple)
-            } else {
-              ctx.strokeStyle = '#60a5fa'; // Prerequisite path (blue)
-            }
-            ctx.lineWidth = 2.2;
-            ctx.globalAlpha = 0.85 * edgeFogAlpha;
+            const isPrereqPath = (edge.target === state.selectedTopicId) || 
+                                 (state.selectedAncestors && state.selectedAncestors.has(edge.source) && state.selectedAncestors.has(edge.target));
+            
             ctx.beginPath();
             ctx.moveTo(srcNode.screenX, srcNode.screenY);
             ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
+            
+            if (isPrereqPath) {
+              // Glowing Golden Yellow for learning prerequisites pathway
+              ctx.shadowColor = '#fbbf24';
+              ctx.shadowBlur = 10;
+              ctx.strokeStyle = '#f59e0b';
+              ctx.lineWidth = 2.8;
+            } else {
+              // Glowing Neon Purple for unlock descendants pathway
+              ctx.shadowColor = '#c084fc';
+              ctx.shadowBlur = 8;
+              ctx.strokeStyle = '#a855f7';
+              ctx.lineWidth = 2.0;
+            }
+            
+            ctx.globalAlpha = 0.85 * edgeFogAlpha;
             ctx.stroke();
+            
+            // Reset shadows immediately
+            ctx.shadowBlur = 0;
+            ctx.shadowColor = 'transparent';
           } else if (filteredIds.has(edge.source) && filteredIds.has(edge.target)) {
             // Non-path links
             const midRZ = (srcNode.rz + tgtNode.rz) / 2;
@@ -2039,36 +2170,156 @@
         
       });
       
+      // Keep track of drawn text regions to prevent overlaps
+      const drawnRegions = [];
+      
       // 4. Draw Labels in a second pass (so they are always drawn on top of all nodes)
       sortedNodes.forEach(node => {
         const isActive = filteredIds.has(node.id);
         const isSelected = (node.id === state.selectedTopicId);
         const isHovered = (node.id === viz.hoverNodeId);
-        const shouldDrawLabel = isSelected || isHovered;
+        
+        // When showing all labels, only show for nodes in the foreground (scale > 0.65) to keep starfield pristine
+        const inForeground = node.scale > 0.65;
+        const shouldDrawLabel = isSelected || isHovered || (state.showAllLabels && inForeground);
         
         if (shouldDrawLabel && isActive) {
           const size = node.size * node.scale;
-          const fontSize = Math.round(Math.max(11, Math.min(14, 11 * node.scale)));
-          ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;
-          ctx.textAlign = 'center';
           
-          const tx = Math.round(node.screenX);
-          const ty = Math.round(node.screenY - size - 10);
+          // Determine opacity: fade non-focused labels, and scale by depth
+          let opacity = 1.0;
+          if (state.showAllLabels && !isSelected && !isHovered) {
+            opacity = Math.max(0.15, Math.min(0.60, (node.scale - 0.65) * 1.5));
+          }
           
-          // Draw crisp outline offsets instead of using blurry shadowBlur
-          ctx.fillStyle = '#080c15';
-          ctx.fillText(node.name, tx - 1.5, ty);
-          ctx.fillText(node.name, tx + 1.5, ty);
-          ctx.fillText(node.name, tx, ty - 1.5);
-          ctx.fillText(node.name, tx, ty + 1.5);
-          ctx.fillText(node.name, tx - 1.5, ty - 1.5);
-          ctx.fillText(node.name, tx + 1.5, ty - 1.5);
-          ctx.fillText(node.name, tx - 1.5, ty + 1.5);
-          ctx.fillText(node.name, tx + 1.5, ty + 1.5);
+          // Align strictly to physical device pixels to eliminate subpixel blur and ghosting
+          const tx = Math.round(node.screenX * dpr) / dpr;
+          let ty = Math.round((node.screenY - size - 8) * dpr) / dpr;
+          const onePx = 1 / dpr; // Exactly 1 physical screen pixel
           
-          // Foreground sharp text
-          ctx.fillStyle = '#ffffff';
-          ctx.fillText(node.name, tx, ty);
+          // Calculate font size
+          const fontSize = isSelected || isHovered 
+            ? Math.round(Math.max(11, Math.min(14, 11 * node.scale)))
+            : 10;
+            
+          // Collision check: estimate text bounds
+          const textWidth = node.name.length * (fontSize * 0.95);
+          const textHeight = fontSize + 4;
+          
+          // Check overlap and try shifting vertically if it overlaps (up to 3 steps)
+          let hasOverlap = false;
+          let shiftSteps = 0;
+          
+          while (shiftSteps < 3) {
+            const currentBox = {
+              left: tx - textWidth / 2 - 2,
+              right: tx + textWidth / 2 + 2,
+              top: ty - textHeight / 2 - 1,
+              bottom: ty + textHeight / 2 + 1
+            };
+            
+            // Check collision with already drawn labels
+            let collides = false;
+            for (let region of drawnRegions) {
+              if (!(currentBox.left > region.right || 
+                    currentBox.right < region.left || 
+                    currentBox.top > region.bottom || 
+                    currentBox.bottom < region.top)) {
+                collides = true;
+                break;
+              }
+            }
+            
+            if (!collides) {
+              // Found a clean spot!
+              drawnRegions.push(currentBox);
+              break;
+            }
+            
+            // Selected/Hovered labels have absolute priority (don't shift, just draw)
+            if (isSelected || isHovered) {
+              drawnRegions.push(currentBox);
+              break;
+            }
+            
+            // Otherwise, shift ty upwards to find a slot
+            ty -= (textHeight + 3);
+            shiftSteps++;
+            if (shiftSteps === 3) {
+              hasOverlap = true; // No slot found after 3 shifts
+            }
+          }
+          
+          // If it overlaps completely and no slot is found, skip drawing to keep UI clean
+          if (hasOverlap && !isSelected && !isHovered) {
+            return;
+          }
+          
+          ctx.globalAlpha = opacity;
+          
+          if (isSelected || isHovered) {
+            // Selected/Hovered: High-contrast crisp outline
+            ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;
+            ctx.textAlign = 'center';
+            
+            ctx.fillStyle = '#080c15';
+            ctx.fillText(node.name, tx - onePx, ty);
+            ctx.fillText(node.name, tx + onePx, ty);
+            ctx.fillText(node.name, tx, ty - onePx);
+            ctx.fillText(node.name, tx, ty + onePx);
+            ctx.fillText(node.name, tx - onePx, ty - onePx);
+            ctx.fillText(node.name, tx + onePx, ty - onePx);
+            ctx.fillText(node.name, tx - onePx, ty + onePx);
+            ctx.fillText(node.name, tx + onePx, ty + onePx);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(node.name, tx, ty);
+          } else {
+            // General background labels: light font weight, constant font size for extreme performance
+            // Drop shadow offset is exactly 1 physical pixel (onePx) for pixel-perfect sharpness without ghosting
+            ctx.font = '10px system-ui, -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            
+            ctx.fillStyle = `rgba(8, 12, 21, ${opacity * 0.95})`;
+            ctx.fillText(node.name, tx + onePx, ty + onePx);
+            
+            ctx.fillStyle = 'rgba(241, 245, 249, 0.88)'; // Crisp light-slate
+            ctx.fillText(node.name, tx, ty);
+          }
+          
+          // Draw exam badge if node has real exam questions
+          const topicData = state.topicMap[node.id];
+          if (topicData && topicData.examQuestions && topicData.examQuestions.length > 0 && (isSelected || isHovered || node.scale > 0.85)) {
+            const badgeX = Math.round(node.screenX + size + 2);
+            const badgeY = Math.round(node.screenY - size - 2);
+            ctx.font = `${Math.round(Math.max(8, size * 0.8))}px serif`;
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#fb923c';
+            ctx.fillText('📄', badgeX, badgeY);
+          }
+          
+          ctx.globalAlpha = 1.0;
+        }
+      });
+
+      // Also draw small exam dot indicator on all non-selected nodes with examQuestions
+      sortedNodes.forEach(node => {
+        const isActive = filteredIds.has(node.id);
+        if (!isActive) return;
+        const isSelected = (node.id === state.selectedTopicId);
+        const isHovered = (node.id === viz.hoverNodeId);
+        if (isSelected || isHovered) return; // already handled above
+        const topicData = state.topicMap[node.id];
+        if (topicData && topicData.examQuestions && topicData.examQuestions.length > 0) {
+          const size = node.size * node.scale;
+          const dotX = Math.round(node.screenX + size);
+          const dotY = Math.round(node.screenY - size);
+          ctx.beginPath();
+          ctx.arc(dotX, dotY, Math.max(2, size * 0.22), 0, Math.PI * 2);
+          ctx.fillStyle = '#fb923c';
+          ctx.globalAlpha = 0.85;
+          ctx.fill();
+          ctx.globalAlpha = 1.0;
         }
       });
       
@@ -2090,6 +2341,18 @@
       }
     };
 
+    // Toggle all labels visibility
+    window.toggleAllLabels = function() {
+      state.showAllLabels = !state.showAllLabels;
+      const btn = document.getElementById('toggle-labels-btn');
+      if (state.showAllLabels) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    };
+
+    // Reset 3D camera and selection
     // Reset 3D camera and selection
     window.reset3DView = function() {
       viz.angleX = 0.3;
@@ -2101,6 +2364,12 @@
       viz.targetAngleY = null;
       viz.isAnimating = false;
       selectTopic(null); // Deselect and clear panels
+      
+      // Reset top-left overlay texts to default instructions
+      const hoverName = document.getElementById('hover-node-name');
+      const hoverDesc = document.getElementById('hover-node-desc');
+      if (hoverName) hoverName.innerText = "3D 课程图谱导航器";
+      if (hoverDesc) hoverDesc.innerText = "拖动鼠标可以旋转图谱，滚轮可以缩放。每一个粒子代表一个知识点，高度代表年级，连线代表前置条件。点击粒子可立即聚焦。";
     };
 
     // View Switching & Subject Tree Rendering logic
@@ -2113,6 +2382,7 @@
       const canvasContainer = document.getElementById('canvas-container');
       const legend = document.querySelector('.legend');
       const treeContainer = document.getElementById('tree-container');
+      const controls3d = document.getElementById('controls-3d-group');
       
       const btn3d = document.getElementById('view-3d-btn');
       const btnTree = document.getElementById('view-tree-btn');
@@ -2121,6 +2391,7 @@
         canvasContainer.style.display = 'block';
         if (legend) legend.style.display = 'flex';
         treeContainer.style.display = 'none';
+        if (controls3d) controls3d.style.display = 'inline-flex';
         
         btn3d.classList.add('active');
         btnTree.classList.remove('active');
@@ -2128,6 +2399,7 @@
         canvasContainer.style.display = 'none';
         if (legend) legend.style.display = 'none';
         treeContainer.style.display = 'block';
+        if (controls3d) controls3d.style.display = 'none';
         
         btn3d.classList.remove('active');
         btnTree.classList.add('active');
@@ -2691,6 +2963,77 @@ window.copyAIPrompt = function(topicId) {
       }
     };
 
+    // Toggle visibility of an exam answer box
+    window.toggleExamAnswer = function(answerId) {
+      const box = document.getElementById(answerId);
+      if (!box) return;
+      box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    };
+
+    // Generate an AI question based on a real exam question style
+    window.generateAIQuizFromRealExam = async function(topicId) {
+      const topic = state.topicMap[topicId];
+      if (!topic) return;
+
+      const activeProfile = state.profiles.find(p => p.id === state.activeProfileId);
+      const childName = activeProfile ? activeProfile.name : '孩子';
+      const grade = activeProfile ? activeProfile.grade : 2;
+
+      // Pick a sample real exam question to use as style reference
+      const sampleEq = topic.examQuestions && topic.examQuestions.length > 0
+        ? topic.examQuestions[Math.floor(Math.random() * topic.examQuestions.length)]
+        : null;
+
+      // Provide feedback to user
+      const panel = document.getElementById('detail-panel');
+      const examAIBtns = panel ? panel.querySelectorAll('.exam-ai-btn') : [];
+      examAIBtns.forEach(btn => {
+        btn.textContent = '⏳ 出题中…';
+        btn.disabled = true;
+      });
+
+      try {
+        const extraContext = sampleEq
+          ? `\n\n请参考以下历年真题的题型风格和难度，出一道同类型的变式题（不要与原题完全相同）：\n原题示例（${sampleEq.year || '历年'}·${sampleEq.questionType || ''}·${sampleEq.difficulty || ''}）：\n${sampleEq.questionText || ''}`
+          : '';
+
+        const res = await fetch('/api/generate-questions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topicName: topic.name,
+            subject: topic.subject,
+            profileName: childName,
+            grade: grade,
+            extraContext: extraContext,
+            styleHint: '请严格仿照小升初/分班考考试风格，出1道应用题或计算题，提供标准答案。'
+          })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        if (data.markdown) {
+          // Show result in a floating toast / append to quiz box
+          const quizContainer = document.getElementById(`quiz-box-inner-${topicId}`);
+          if (quizContainer) {
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = 'margin-top:0.8rem;padding:0.7rem;background:rgba(251,146,60,0.07);border:1px solid rgba(251,146,60,0.25);border-radius:8px;';
+            wrapper.innerHTML = `<div style="font-size:0.7rem;color:#fb923c;font-weight:600;margin-bottom:0.4rem;">🪄 AI 仿真小升初真题风格变式题</div>${parseQuizMarkdown(data.markdown)}`;
+            quizContainer.appendChild(wrapper);
+            quizContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      } catch (e) {
+        console.error('AI exam-style quiz generation failed:', e);
+        alert('⚠️ AI 仿真出题失败：' + (e.message || '请检查 LM Studio 是否已启动'));
+      } finally {
+        examAIBtns.forEach(btn => {
+          btn.textContent = '🪄 AI 仿真出题';
+          btn.disabled = false;
+        });
+      }
+    };
+
     async function selectTopic(topicId) {
       if (!topicId) {
         state.selectedTopicId = null;
@@ -2902,6 +3245,37 @@ window.copyAIPrompt = function(topicId) {
                 <div class="section-title" style="font-size: 0.85rem; margin-top: 0.5rem;">
                   对齐的教学标准编码: ${topic.standards.map(s => `<span class="standard-badge">${s}</span>`).join('')}
                 </div>
+              </div>
+            ` : ''}
+
+            ${(topic.examQuestions && topic.examQuestions.length > 0) ? `
+              <div class="exam-section">
+                <div class="exam-section-title">
+                  <span style="display:flex;align-items:center;gap:0.3rem;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    📄 历年小升初真题实战 (${topic.examQuestions.length} 题)
+                  </span>
+                  <button class="exam-ai-btn" onclick="generateAIQuizFromRealExam('${topicId}')">
+                    🪄 AI 仿真出题
+                  </button>
+                </div>
+                ${topic.examQuestions.map((eq, idx) => `
+                  <div class="exam-card">
+                    <div class="exam-card-meta">
+                      <span class="exam-meta-pill">${eq.year || '历年'}</span>
+                      <span class="exam-meta-pill">${eq.questionType || '综合'}</span>
+                      <span class="exam-meta-pill">${eq.difficulty || '中等'}</span>
+                      <span style="color:var(--text-secondary);font-size:0.68rem;">${eq.origin || ''}</span>
+                    </div>
+                    <div class="exam-question-text">${eq.questionText || ''}</div>
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                      ${eq.answer ? `
+                        <button class="exam-answer-toggle" onclick="toggleExamAnswer('exam-ans-${topicId}-${idx}')">💡 查看答案</button>
+                        <div class="exam-answer-box" id="exam-ans-${topicId}-${idx}">答案：${eq.answer}</div>
+                      ` : '<span style="font-size:0.68rem;color:var(--text-secondary);">答案待补充</span>'}
+                    </div>
+                  </div>
+                `).join('')}
               </div>
             ` : ''}
           </div>

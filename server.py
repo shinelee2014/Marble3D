@@ -387,29 +387,52 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             subject = req_data.get("subject", "")
             profile_name = req_data.get("profileName", "孩子")
             grade = req_data.get("grade", 2)
-            prompt = (
-                f"# 🍎 苏州小课堂·{subject}精讲\n\n"
-                f"你是苏州小学一位经验丰富的{subject}老师。请为{grade}年级的学生{profile_name}出3道关于【{topic_name}】的趣味练习题。\n"
-                f"要求：\n"
-                f"1. 贴近苏教版{grade}年级教材，内容生动有趣，难度适中。\n"
-                f"2. 严禁使用任何 LaTeX 语法或美元符号（如不要写 $x$，$y$），数学公式和变量一律直接写成普通文本，例如直接写 x、y、z 或 x + 8 = 25，确保不要出现任何 $ 符号。\n"
-                f"3. 对于数学中的代数/方程题目，未知数（变量）仅使用小学生最常用的 x、y、z（优先使用 x），不要使用 m、n 等非常用字母。\n\n"
-                f"请严格按照以下格式和排版输出 markdown，不要包裹 JSON 代码块，也不要输出任何多余的文字：\n\n"
-                f"## ✨ 教学目标设定\n"
-                f"1. 知识目标：学生能够...\n"
-                f"2. 能力目标：学生能够...\n"
-                f"3. 情感态度目标：培养学生...\n\n"
-                f"## 📝 趣味课后练习题（共3题）\n\n"
-                f"### 第 1 题：【写一个趣味题名】情境应用题（基础型/进阶型/挑战型）\n"
-                f"【题干】这里写详细的题目描述...\n"
-                f"【✍️ 解题步骤】\n"
-                f"1. 设未知数：...\n"
-                f"2. 列方程：...\n"
-                f"3. 解方程：...\n"
-                f"【✅ 参考答案】这里写答案内容...\n"
-                f"【💡 思考提示】给家长的讲解辅导要点/思考提示...\n\n"
-                f"### 第 2 题：...\n"
-            )
+            extra_context = req_data.get("extraContext", "")   # 真题参考上下文
+            style_hint = req_data.get("styleHint", "")         # 风格提示（如"小升初考试风格"）
+
+            # If there's a style hint (real-exam imitation mode), build a focused prompt
+            if style_hint or extra_context:
+                prompt = (
+                    f"你是一位专业的中国小学{subject}教师，擅长出小升初/分班考真题风格的题目。\n"
+                    f"请为{grade}年级学生{profile_name}出1道关于【{topic_name}】的题目。\n"
+                    f"{style_hint}\n"
+                    f"要求：\n"
+                    f"1. 严格仿照小升初/分班考考试风格，题目有一定思维深度。\n"
+                    f"2. 严禁使用任何 LaTeX 语法或美元符号，数学公式直接写成普通文本。\n"
+                    f"3. 输出格式为 Markdown：包含题干、解题步骤和标准答案。\n"
+                    f"{extra_context}\n\n"
+                    f"请输出以下格式（只输出题目，不要其他多余说明）：\n\n"
+                    f"### 🎯 仿真练习题：【题目名称】\n"
+                    f"【题干】题目内容...\n"
+                    f"【✍️ 解题步骤】\n"
+                    f"1. ...\n"
+                    f"【✅ 标准答案】...\n"
+                    f"【💡 考点提示】...\n"
+                )
+            else:
+                prompt = (
+                    f"# 🍎 苏州小课堂·{subject}精讲\n\n"
+                    f"你是苏州小学一位经验丰富的{subject}老师。请为{grade}年级的学生{profile_name}出3道关于【{topic_name}】的趣味练习题。\n"
+                    f"要求：\n"
+                    f"1. 贴近苏教版{grade}年级教材，内容生动有趣，难度适中。\n"
+                    f"2. 严禁使用任何 LaTeX 语法或美元符号（如不要写 $x$，$y$），数学公式和变量一律直接写成普通文本，例如直接写 x、y、z 或 x + 8 = 25，确保不要出现任何 $ 符号。\n"
+                    f"3. 对于数学中的代数/方程题目，未知数（变量）仅使用小学生最常用的 x、y、z（优先使用 x），不要使用 m、n 等非常用字母。\n\n"
+                    f"请严格按照以下格式和排版输出 markdown，不要包裹 JSON 代码块，也不要输出任何多余的文字：\n\n"
+                    f"## ✨ 教学目标设定\n"
+                    f"1. 知识目标：学生能够...\n"
+                    f"2. 能力目标：学生能够...\n"
+                    f"3. 情感态度目标：培养学生...\n\n"
+                    f"## 📝 趣味课后练习题（共3题）\n\n"
+                    f"### 第 1 题：【写一个趣味题名】情境应用题（基础型/进阶型/挑战型）\n"
+                    f"【题干】这里写详细的题目描述...\n"
+                    f"【✍️ 解题步骤】\n"
+                    f"1. 设未知数：...\n"
+                    f"2. 列方程：...\n"
+                    f"3. 解方程：...\n"
+                    f"【✅ 参考答案】这里写答案内容...\n"
+                    f"【💡 思考提示】给家长的讲解辅导要点/思考提示...\n\n"
+                    f"### 第 2 题：...\n"
+                )
             text, err = call_lm_studio(prompt)
             if err:
                 self.send_response(200)

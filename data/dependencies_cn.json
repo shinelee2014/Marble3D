@@ -1,221 +1,701 @@
 {
   "version": "1.0.0",
-  "dependencyCount": 43,
+  "dependencyCount": 139,
   "dependencies": [
     {
       "topicId": "sz_math_1_3",
       "prerequisiteId": "sz_math_1_1",
-      "reason": "20以内加减法是100以内加减法的基础"
+      "reason": "10以内加减是20以内进位加法的基础"
+    },
+    {
+      "topicId": "sz_math_1_5",
+      "prerequisiteId": "sz_math_1_3",
+      "reason": "20以内进位加法凑十思维延伸到两位数加减一位数"
+    },
+    {
+      "topicId": "sz_math_1_5",
+      "prerequisiteId": "sz_math_1_4",
+      "reason": "数位理解是两位数加减法笔算对齐的前提"
     },
     {
       "topicId": "sz_math_2_1",
-      "prerequisiteId": "sz_math_1_3",
-      "reason": "加法是乘法的基础，乘法是求相同加数的简便运算"
+      "prerequisiteId": "sz_math_1_5",
+      "reason": "连加连减运算是表内乘法求积的直接过渡"
     },
     {
       "topicId": "sz_math_2_2",
       "prerequisiteId": "sz_math_2_1",
-      "reason": "乘法口诀是表内除法求商的直接逆运算"
+      "reason": "表内乘法口诀是除法均分求商的基本工具"
     },
     {
-      "topicId": "sz_math_3_1",
+      "topicId": "sz_math_2_5",
+      "prerequisiteId": "sz_math_2_1",
+      "reason": "1-5乘法口诀熟练为6-9乘法口诀熟练打下基础"
+    },
+    {
+      "topicId": "sz_math_2_6",
+      "prerequisiteId": "sz_math_2_5",
+      "reason": "6-9乘法口诀是表内除法求商的前提"
+    },
+    {
+      "topicId": "sz_math_3_5",
       "prerequisiteId": "sz_math_2_2",
-      "reason": "一位数乘除法熟练是两三位数乘法笔算的前提"
+      "reason": "一位数除法是两三位数除以一位数笔算的前提"
     },
     {
-      "topicId": "sz_math_2_3",
-      "prerequisiteId": "sz_math_1_2",
-      "reason": "感知立体图形的边界有助于理解线段和长度度量"
+      "topicId": "sz_math_3_5",
+      "prerequisiteId": "sz_math_2_6",
+      "reason": "熟练用口诀求商是多位数除法竖式计算的核心"
     },
     {
       "topicId": "sz_math_3_3",
       "prerequisiteId": "sz_math_2_3",
-      "reason": "掌握厘米和米等长度单位是计算长方形周长的前提"
+      "reason": "长度单位厘米与米是计算长正方形周长的前提"
+    },
+    {
+      "topicId": "sz_math_3_7",
+      "prerequisiteId": "sz_math_3_3",
+      "reason": "掌握图形边界与周长概念是过渡到面积计算的前提"
+    },
+    {
+      "topicId": "sz_math_5_6",
+      "prerequisiteId": "sz_math_3_4",
+      "reason": "分数的初步认识是进行约分通分及异分母计算的前置核心"
+    },
+    {
+      "topicId": "sz_math_4_2",
+      "prerequisiteId": "sz_math_3_5",
+      "reason": "除以一位数笔算是除以两位数试商调商的基础"
+    },
+    {
+      "topicId": "sz_math_4_5",
+      "prerequisiteId": "sz_math_3_6",
+      "reason": "掌握两位数乘法是进行乘法分配律拆数计算的基础"
     },
     {
       "topicId": "sz_math_6_2",
-      "prerequisiteId": "sz_math_3_4",
-      "reason": "分数的初步认识是进行分数乘除法计算的认知起点"
+      "prerequisiteId": "sz_math_4_1",
+      "reason": "容积升毫升是立体图形体积计算单位换算的认知基础"
+    },
+    {
+      "topicId": "sz_math_5_2",
+      "prerequisiteId": "sz_math_4_7",
+      "reason": "认识三角形与梯形结构是进行多边形面积公式割补推导的前提"
+    },
+    {
+      "topicId": "sz_math_5_4",
+      "prerequisiteId": "sz_math_5_3",
+      "reason": "小数乘法小数点移动规律是小数除法商的小数点定位基础"
+    },
+    {
+      "topicId": "sz_math_5_6",
+      "prerequisiteId": "sz_math_5_5",
+      "reason": "最大公因数和最小公倍数是分数约分通分的工具"
+    },
+    {
+      "topicId": "sz_math_5_7",
+      "prerequisiteId": "sz_math_5_6",
+      "reason": "通分技巧是异分母分数加减法计算的前提"
     },
     {
       "topicId": "sz_math_6_3",
-      "prerequisiteId": "sz_math_6_2",
-      "reason": "分数除法的逆运算关系直接用于理解比的意义和百分数换算"
+      "prerequisiteId": "sz_math_5_7",
+      "reason": "分数的加减运算是分数乘除法混合计算的基础"
     },
     {
       "topicId": "sz_math_6_4",
       "prerequisiteId": "sz_math_6_3",
-      "reason": "比的化简与等值关系是比例方程建立的数学基础"
+      "reason": "分数乘法应用题寻找单位1是列方程解决分数除法问题的逆向依据"
+    },
+    {
+      "topicId": "sz_math_6_5",
+      "prerequisiteId": "sz_math_6_4",
+      "reason": "分数除法比值运算是引入比的意义和化简比的认知桥梁"
+    },
+    {
+      "topicId": "sz_math_6_6",
+      "prerequisiteId": "sz_math_6_5",
+      "reason": "比与除法分数的联系是理解百分数意义及折扣计算的前置"
+    },
+    {
+      "topicId": "sz_math_6_7",
+      "prerequisiteId": "sz_math_6_5",
+      "reason": "比的基本性质是比例基本性质及解比例方程的直接来源"
+    },
+    {
+      "topicId": "sz_math_6_8",
+      "prerequisiteId": "sz_math_6_7",
+      "reason": "熟练解比例是判定正比例反比例函数对应比值或乘积恒定的工具"
+    },
+    {
+      "topicId": "sz_chn_1_2",
+      "prerequisiteId": "sz_chn_1_1",
+      "reason": "声母的发音拼读是拼写韵母和声调的直接基础"
+    },
+    {
+      "topicId": "sz_chn_1_5",
+      "prerequisiteId": "sz_chn_1_2",
+      "reason": "拼音全套读写是无障碍指读拼音版儿歌古诗的前提"
     },
     {
       "topicId": "sz_chn_2_1",
       "prerequisiteId": "sz_chn_1_1",
-      "reason": "掌握汉语拼音读音是查字典拼音索引和核对部首查字读音的基础"
+      "reason": "掌握声母顺序和拼读是字典音序查字法的基础"
+    },
+    {
+      "topicId": "sz_chn_1_4",
+      "prerequisiteId": "sz_chn_1_3",
+      "reason": "掌握书写笔顺有助于拆解常用偏旁和书写象形汉字"
     },
     {
       "topicId": "sz_chn_2_1",
-      "prerequisiteId": "sz_chn_1_2",
-      "reason": "识别汉字偏旁和数对多余笔画是部首查字法的核心技能"
+      "prerequisiteId": "sz_chn_1_4",
+      "reason": "认识偏旁部首是掌握字典部首查字法的必备技能"
     },
     {
-      "topicId": "sz_chn_1_3",
-      "prerequisiteId": "sz_chn_1_2",
-      "reason": "笔顺正确能提高汉字书写速度，支持快速完成看图写话"
+      "topicId": "sz_chn_1_6",
+      "prerequisiteId": "sz_chn_1_3",
+      "reason": "掌握汉字书写后才能在纸上写出一句话的看图写话"
+    },
+    {
+      "topicId": "sz_chn_2_6",
+      "prerequisiteId": "sz_chn_1_6",
+      "reason": "单幅图写人写事是连环画多幅图看图写话段落的前提"
     },
     {
       "topicId": "sz_chn_3_1",
       "prerequisiteId": "sz_chn_2_2",
-      "reason": "积累近反义词能扩展词汇量，从而进行准确的词语搭配"
+      "reason": "近反义词的积累是扩展四字词语和成语储备的基础"
     },
     {
-      "topicId": "sz_chn_3_3",
-      "prerequisiteId": "sz_chn_2_3",
-      "reason": "比喻句和拟人句是写出生动有趣的基础习作的有效表达工具"
+      "topicId": "sz_chn_3_4",
+      "prerequisiteId": "sz_chn_2_4",
+      "reason": "理解比喻句的本喻体关系是进一步学习拟人和排比修辞的前置"
     },
     {
-      "topicId": "sz_chn_4_3",
+      "topicId": "sz_chn_3_5",
+      "prerequisiteId": "sz_chn_2_6",
+      "reason": "看图写完整段落过渡到写人写事长篇作文初步的构思基础"
+    },
+    {
+      "topicId": "sz_chn_3_5",
+      "prerequisiteId": "sz_chn_3_2",
+      "reason": "的地得的用法是完成一篇没有基本语法瑕疵的小学作文的前置要求"
+    },
+    {
+      "topicId": "sz_chn_4_4",
+      "prerequisiteId": "sz_chn_3_6",
+      "reason": "标点符号和引号格式是写作书信请假条等应用文的格式基础"
+    },
+    {
+      "topicId": "sz_chn_5_5",
+      "prerequisiteId": "sz_chn_3_1",
+      "reason": "掌握词性词语搭配是辨析同义词褒义贬义色彩的前置要求"
+    },
+    {
+      "topicId": "sz_chn_4_2",
       "prerequisiteId": "sz_chn_3_3",
-      "reason": "标点符号规范是完成应用文（请假条/书信）书写的格式要求"
+      "reason": "提取寓言童话的寓意有利于在四年级寻找段落概括中心句"
     },
     {
       "topicId": "sz_chn_6_1",
       "prerequisiteId": "sz_chn_4_1",
-      "reason": "缩句找句子主干是快速排查句子成分残缺、搭配不当等病句的基础"
+      "reason": "缩句提取主干是辨识和修改成分残缺、搭配不当病句的基础"
+    },
+    {
+      "topicId": "sz_chn_4_3",
+      "prerequisiteId": "sz_chn_4_2",
+      "reason": "寻找段落中心句是快速检索科普和说明性文章主旨大意的前提"
     },
     {
       "topicId": "sz_chn_5_1",
-      "prerequisiteId": "sz_chn_4_2",
-      "reason": "提炼段落中心句能帮助理清说明文的结构并快速获取核心说明信息"
+      "prerequisiteId": "sz_chn_4_3",
+      "reason": "说明性文字的检索是系统学习列数字等说明文方法的前提"
     },
     {
-      "topicId": "sz_chn_5_2",
-      "prerequisiteId": "sz_chn_3_1",
-      "reason": "日常词汇搭配与成语积累是深度学习历史成语典故的基础"
+      "topicId": "sz_chn_5_4",
+      "prerequisiteId": "sz_chn_4_5",
+      "reason": "写景日记与片断练习是完成中长篇记叙文结构排版的基础"
+    },
+    {
+      "topicId": "sz_chn_5_6",
+      "prerequisiteId": "sz_chn_4_6",
+      "reason": "陈述反问句转换逻辑有利于过渡到更复杂的双重否定句变换"
+    },
+    {
+      "topicId": "sz_chn_6_6",
+      "prerequisiteId": "sz_chn_5_3",
+      "reason": "概括提取文章主要内容是进一步梳理中长篇小说结构脉络的前提"
     },
     {
       "topicId": "sz_chn_6_2",
       "prerequisiteId": "sz_chn_5_2",
-      "reason": "成语典故中保留了大量古代汉语语法，是学习文言文实词的前置桥梁"
+      "reason": "学习历史成语典故能接触大量单字字义，是学习小古文实词字义的桥梁"
+    },
+    {
+      "topicId": "sz_chn_6_4",
+      "prerequisiteId": "sz_chn_6_2",
+      "reason": "理解基础文言文实词字义是学习小古文通假字和文言表达特点的前置"
     },
     {
       "topicId": "sz_eng_3_2",
       "prerequisiteId": "sz_eng_3_1",
-      "reason": "认识26个字母大小写是读写英文基本单词和代词的前提"
+      "reason": "熟练书写26个大小写字母是正确抄写英文名词和单词的主干基础"
+    },
+    {
+      "topicId": "sz_eng_3_3",
+      "prerequisiteId": "sz_eng_3_1",
+      "reason": "认识字母发音是开口进行口语打招呼的语音感知前提"
+    },
+    {
+      "topicId": "sz_eng_3_4",
+      "prerequisiteId": "sz_eng_3_3",
+      "reason": "学会日常基本交流礼貌用语可顺利过渡到表达能力的祈使句型"
     },
     {
       "topicId": "sz_eng_4_1",
       "prerequisiteId": "sz_eng_3_2",
-      "reason": "理解名词的单数概念是过渡到名词复数变化规则的前提"
+      "reason": "理解单数名词和代词是转换到复数名词规则加s/es的基础"
+    },
+    {
+      "topicId": "sz_eng_4_2",
+      "prerequisiteId": "sz_eng_3_2",
+      "reason": "认识主格人称代词是掌握 be 动词主谓一致口诀的前提"
+    },
+    {
+      "topicId": "sz_eng_4_2",
+      "prerequisiteId": "sz_eng_4_1",
+      "reason": "名词的复数形式直接运用于 be 动词中 are 与复数名词的主谓对齐"
+    },
+    {
+      "topicId": "sz_eng_4_3",
+      "prerequisiteId": "sz_eng_4_2",
+      "reason": "掌握主系表 be 动词句型是运用方位介词进行“某物在某处”表达的前提"
+    },
+    {
+      "topicId": "sz_eng_4_4",
+      "prerequisiteId": "sz_eng_4_2",
+      "reason": "掌握 be 动词陈述句是学习 be 动词提前构成一般疑问句的句式基础"
+    },
+    {
+      "topicId": "sz_eng_4_1",
+      "prerequisiteId": "sz_eng_4_5",
+      "reason": "积累水果动物词汇是进行复数 s/es 规则变化拼写的大量语料基础"
     },
     {
       "topicId": "sz_eng_5_1",
-      "prerequisiteId": "sz_eng_4_1",
-      "reason": "名词复数加s/es的变形规律与第三人称单数动词加s/es的规则有高度相似性"
+      "prerequisiteId": "sz_eng_4_2",
+      "reason": "理解一般现在时 be 动词主谓一致是学习实义动词第三人称单数变形的认知基础"
     },
     {
       "topicId": "sz_eng_5_2",
+      "prerequisiteId": "sz_eng_4_3",
+      "reason": "方位介词的表达直接作为 There be 句型后半部分方位状语的构成"
+    },
+    {
+      "topicId": "sz_eng_5_3",
       "prerequisiteId": "sz_eng_5_1",
-      "reason": "第三人称单数的主谓一致概念直接运用于 There be 句型中 is/are 的就近选择"
+      "reason": "动词三单加s/es的变化直接决定了其否定和疑问句中助动词要选择 does 还是 do"
+    },
+    {
+      "topicId": "sz_eng_5_3",
+      "prerequisiteId": "sz_eng_4_4",
+      "reason": "掌握 be 动词的一般疑问句变化是掌握助动词引导疑问句的基础"
+    },
+    {
+      "topicId": "sz_eng_5_4",
+      "prerequisiteId": "sz_eng_5_3",
+      "reason": "一般疑问句的结构是构造特殊疑问句（疑问代词+一般疑问句结构）的前置技能"
+    },
+    {
+      "topicId": "sz_eng_5_5",
+      "prerequisiteId": "sz_eng_5_1",
+      "reason": "一般现在时动词三单的使用是掌握频度副词在实义动词前排列的语法背景"
     },
     {
       "topicId": "sz_eng_6_1",
-      "prerequisiteId": "sz_eng_5_1",
-      "reason": "掌握一般现在时态是对比学习一般过去时态（时间线向后偏移）的基础"
+      "prerequisiteId": "sz_eng_5_3",
+      "reason": "掌握一般现在时动词及助动词是对比学习一般过去时态（过去式和助动词 did）的基础"
     },
     {
       "topicId": "sz_eng_6_2",
       "prerequisiteId": "sz_eng_6_1",
-      "reason": "掌握过去时态的表示有利于对比学习未来时态（be going to/will）"
+      "reason": "过去时间状态的表达有助于对比学习将来时间状态 be going to 的计划表达"
+    },
+    {
+      "topicId": "sz_eng_6_3",
+      "prerequisiteId": "sz_eng_6_2",
+      "reason": "be going to 时态的学习是进一步拓展到 will 将来时态的基础"
+    },
+    {
+      "topicId": "sz_eng_6_4",
+      "prerequisiteId": "sz_eng_5_4",
+      "reason": "掌握特殊疑问代词是看懂短篇英语阅读理解中 Who/What/Where 提问的关键"
+    },
+    {
+      "topicId": "sz_eng_6_4",
+      "prerequisiteId": "sz_eng_6_1",
+      "reason": "理解过去时态和动词过去式是无障碍阅读叙事性假日英文短文的必备词汇基础"
+    },
+    {
+      "topicId": "sz_sci_3_1",
+      "prerequisiteId": "sz_sci_1_1",
+      "reason": "日常感知植物外部特征是系统学习植物根茎叶解剖结构的基础"
+    },
+    {
+      "topicId": "sz_sci_3_3",
+      "prerequisiteId": "sz_sci_1_2",
+      "reason": "对水的流动和无色特征感知是学习使用量筒度量液体体积的前提"
+    },
+    {
+      "topicId": "sz_sci_4_3",
+      "prerequisiteId": "sz_sci_1_2",
+      "reason": "认识液态水与空气是学习水的三态升华与蒸发循环的物理背景"
+    },
+    {
+      "topicId": "sz_sci_3_2",
+      "prerequisiteId": "sz_sci_1_3",
+      "reason": "认识金属塑料硬度差异是探索铁被磁铁吸引这一物理特性的基础"
     },
     {
       "topicId": "sz_sci_6_1",
       "prerequisiteId": "sz_sci_2_1",
-      "reason": "观察四季气候交替是进一步学习地球绕日公转天文学规律的认知前提"
+      "reason": "观察太阳东升西落是运用手电模型解释地球自转昼夜成因的直接依据"
     },
     {
-      "topicId": "sz_sci_5_1",
+      "topicId": "sz_sci_6_2",
+      "prerequisiteId": "sz_sci_2_2",
+      "reason": "记录四季更替特点是深入学习地球倾斜绕日公转产生四季温度变化的背景"
+    },
+    {
+      "topicId": "sz_sci_4_1",
+      "prerequisiteId": "sz_sci_2_3",
+      "reason": "感知小车拉力推力是学习振动波产生机械声能振动的力学前置"
+    },
+    {
+      "topicId": "sz_sci_5_3",
+      "prerequisiteId": "sz_sci_3_1",
+      "reason": "掌握根茎叶中叶子和茎的功能是学习叶绿体进行光合作用的前提"
+    },
+    {
+      "topicId": "sz_sci_4_2",
       "prerequisiteId": "sz_sci_4_1",
-      "reason": "波动在介质中的直线与折射传播与声音物理性质有认知相似性"
+      "reason": "理解声音是振动产生的是进一步学习振动波在空气固体等介质中传播的基础"
+    },
+    {
+      "topicId": "sz_sci_5_2",
+      "prerequisiteId": "sz_sci_5_1",
+      "reason": "掌握光在空气中沿直线传播是理解光从空气入水发生折射弯曲的前提"
+    },
+    {
+      "topicId": "sz_sci_6_3",
+      "prerequisiteId": "sz_sci_6_1",
+      "reason": "掌握地球自转与公转规律是建立太阳系八大行星运行宏观宇宙观的基础"
+    },
+    {
+      "topicId": "sz_mor_1_2",
+      "prerequisiteId": "sz_mor_1_1",
+      "reason": "适应小学角色是开展校园课间安全玩耍规范教育的前提"
+    },
+    {
+      "topicId": "sz_mor_1_3",
+      "prerequisiteId": "sz_mor_1_2",
+      "reason": "校园走廊楼梯安全通行意识扩展到马路交通红绿灯守则遵守"
+    },
+    {
+      "topicId": "sz_mor_1_4",
+      "prerequisiteId": "sz_mor_1_3",
+      "reason": "交通自救求生常识是掌握在社区防拐骗和打求助电话的技能基础"
     },
     {
       "topicId": "sz_mor_2_1",
-      "prerequisiteId": "sz_mor_1_1",
-      "reason": "生活安全规范意识是进一步开展传统节日习俗校外实践活动的前提"
+      "prerequisiteId": "sz_mor_1_5",
+      "reason": "理解古老神话始祖（炎黄等）有利于对比学习具体传统节日民俗历史"
+    },
+    {
+      "topicId": "sz_mor_2_2",
+      "prerequisiteId": "sz_mor_2_1",
+      "reason": "掌握全国通用传统节日（端午等）后深入探索苏州冬至夜等地方特色岁时民俗"
+    },
+    {
+      "topicId": "sz_mor_2_4",
+      "prerequisiteId": "sz_mor_2_3",
+      "reason": "班级内部的团队协作素养扩展到社会公共场所尊老爱幼等文明规范"
     },
     {
       "topicId": "sz_mor_3_1",
-      "prerequisiteId": "sz_mor_2_1",
-      "reason": "从口头神话传说过渡到书面文字演变，理解人类文明的书写方式"
+      "prerequisiteId": "sz_mor_1_5",
+      "reason": "了解传说结绳记事后开始学习三千年前殷商甲骨文的演变历史"
+    },
+    {
+      "topicId": "sz_mor_3_2",
+      "prerequisiteId": "sz_mor_3_1",
+      "reason": "甲骨文金文竹简等书写载体是东汉蔡伦改进植物纤维造纸术的演进动因"
+    },
+    {
+      "topicId": "sz_mor_3_3",
+      "prerequisiteId": "sz_mor_3_2",
+      "reason": "造纸术的技术普及支撑了宋代活字印刷术的发明以及古代科学交流"
+    },
+    {
+      "topicId": "sz_mor_3_4",
+      "prerequisiteId": "sz_mor_3_3",
+      "reason": "印刷术的普及为本草纲目等宏伟医药科技巨著的编纂出版提供了印刷保障"
     },
     {
       "topicId": "sz_mor_4_1",
-      "prerequisiteId": "sz_mor_3_1",
-      "reason": "四大发明（指南针、造纸等）是古代丝绸之路长途贸易和商队交流的技术保障"
+      "prerequisiteId": "sz_mor_3_2",
+      "reason": "指南针在航海交通中的应用是开辟汉代陆上和海上丝绸之路的前提保障"
     },
     {
-      "topicId": "sz_mor_5_1",
+      "topicId": "sz_mor_4_2",
       "prerequisiteId": "sz_mor_4_1",
-      "reason": "陆上丝绸之路向中原拓展的历史是隋唐修建南北大运河巩固大一统的政治背景"
+      "reason": "丝路长途商队贸易的安全需要修筑长城进行农耕和游牧边界的防御性保护"
+    },
+    {
+      "topicId": "sz_mor_4_3",
+      "prerequisiteId": "sz_mor_2_4",
+      "reason": "公共懂礼貌素养在商业买卖场景中升华为消费者合法权益的保护"
+    },
+    {
+      "topicId": "sz_mor_5_2",
+      "prerequisiteId": "sz_mor_5_1",
+      "reason": "春秋战国思想百家争鸣大乱局是秦始皇建立大一统王朝实施文字度量衡统一的背景"
+    },
+    {
+      "topicId": "sz_mor_5_3",
+      "prerequisiteId": "sz_mor_5_2",
+      "reason": "大一统帝国的建立为隋唐时期贯通南北沟通运河漕运提供了行政和组织保障"
+    },
+    {
+      "topicId": "sz_mor_5_4",
+      "prerequisiteId": "sz_mor_5_3",
+      "reason": "南北运河漕运带来的南北商业大沟通是唐宋盛世诗词文化繁荣的物质基础"
     },
     {
       "topicId": "sz_mor_6_1",
-      "prerequisiteId": "sz_mor_5_1",
-      "reason": "理解古代帝制与统一王朝兴衰是进一步学习近代推翻帝制救亡图存历史的认知背景"
+      "prerequisiteId": "sz_mor_5_2",
+      "reason": "理解大一统帝国从古代鼎盛演进到清代末期落后挨打被炮火轰开国门的痛苦转折"
+    },
+    {
+      "topicId": "sz_mor_6_2",
+      "prerequisiteId": "sz_mor_6_1",
+      "reason": "遭受近代西方列强入侵丧失主权刺激了孙中山辛亥革命推翻封建帝制探索救国"
+    },
+    {
+      "topicId": "sz_mor_6_3",
+      "prerequisiteId": "sz_mor_6_2",
+      "reason": "反封建革命唤醒了全民族反法西斯侵略、走长征和抗日战争胜利的顽强意志"
+    },
+    {
+      "topicId": "sz_mor_6_4",
+      "prerequisiteId": "sz_mor_6_3",
+      "reason": "取得抗日战争和解放战争的伟大胜利是宣告新中国成立的唯一政治基石"
+    },
+    {
+      "topicId": "sz_mor_6_5",
+      "prerequisiteId": "sz_mor_6_4",
+      "reason": "新中国的成立为荒漠戈壁默默耕耘、研发两弹一星等现代国防高科技提供了独立主权庇护"
+    },
+    {
+      "topicId": "sz_inf_3_2",
+      "prerequisiteId": "sz_inf_3_1",
+      "reason": "熟悉开关机与鼠标操作是把手放在键盘上进行指法训练的基础"
+    },
+    {
+      "topicId": "sz_inf_3_3",
+      "prerequisiteId": "sz_inf_3_2",
+      "reason": "熟练盲打英文键位是启用拼音输入法打出中文字的物理前提"
+    },
+    {
+      "topicId": "sz_inf_3_4",
+      "prerequisiteId": "sz_inf_3_1",
+      "reason": "鼠标双击和拖放是自如画画图简笔画的前提"
     },
     {
       "topicId": "sz_inf_4_1",
       "prerequisiteId": "sz_inf_3_1",
-      "reason": "掌握键盘输入和基本鼠标拖拽操作是拼装 Scratch 编程积木的代码基础"
+      "reason": "掌握系统操作是进一步学习新建文件夹重命名复制文件的前提"
+    },
+    {
+      "topicId": "sz_inf_4_2",
+      "prerequisiteId": "sz_inf_3_1",
+      "reason": "基本鼠标拖拽和点击是拖动 Scratch 编程积木排版的前提"
+    },
+    {
+      "topicId": "sz_inf_4_3",
+      "prerequisiteId": "sz_inf_4_2",
+      "reason": "掌握 Scratch 角色基本移动后才能进一步运用循环指令控制画笔画出几何体"
     },
     {
       "topicId": "sz_inf_5_1",
-      "prerequisiteId": "sz_inf_3_1",
-      "reason": "熟练键盘指法打字是进行 Word 文档排版和 PPT 演示编辑的前提"
+      "prerequisiteId": "sz_inf_3_3",
+      "reason": "拼音汉字打字速度是进行 Word 作文长段落录入的基本效率支撑"
+    },
+    {
+      "topicId": "sz_inf_5_2",
+      "prerequisiteId": "sz_inf_5_1",
+      "reason": "掌握基本 Word 排版是设计行列表格布局排版的前提"
+    },
+    {
+      "topicId": "sz_inf_5_4",
+      "prerequisiteId": "sz_inf_5_3",
+      "reason": "建好 PPT 基本幻灯片后才能给幻灯页的字画加上切入和放映特效"
     },
     {
       "topicId": "sz_inf_6_1",
-      "prerequisiteId": "sz_inf_5_1",
-      "reason": "具备办公及文件保存技能后，进一步学习网络防毒和本地文件加密等信息安全常识"
+      "prerequisiteId": "sz_inf_4_3",
+      "reason": "循环与顺序执行思维是进一步学习“如果那么”条件分支侦测的基础"
+    },
+    {
+      "topicId": "sz_inf_6_2",
+      "prerequisiteId": "sz_inf_6_1",
+      "reason": "掌握碰撞判定等侦测分支是进一步创建得分变量和游戏判定机制的前提"
+    },
+    {
+      "topicId": "sz_inf_6_3",
+      "prerequisiteId": "sz_inf_4_4",
+      "reason": "掌握网页搜索和下载资料是分辨钓鱼网站安全风险防范电脑病毒的前提"
+    },
+    {
+      "topicId": "sz_inf_6_4",
+      "prerequisiteId": "sz_inf_6_3",
+      "reason": "认识计算机病毒安全防护可顺利升华为规范个人网络行为防止沉迷"
+    },
+    {
+      "topicId": "sz_lab_1_2",
+      "prerequisiteId": "sz_lab_1_1",
+      "reason": "自己分类理书包的习惯有利于过渡到玩具图书的归类收纳"
+    },
+    {
+      "topicId": "sz_lab_2_3",
+      "prerequisiteId": "sz_lab_1_2",
+      "reason": "整理玩具的习惯可以顺利迁移到对自己的书桌和文具的定期整理"
     },
     {
       "topicId": "sz_lab_2_1",
-      "prerequisiteId": "sz_lab_1_1",
-      "reason": "学会分类整理书包可顺利过渡到家庭大范围垃圾分类和物品收纳"
+      "prerequisiteId": "sz_lab_2_2",
+      "reason": "在厨房择菜后产生废弃菜叶有助于练习厨余垃圾分类投放"
+    },
+    {
+      "topicId": "sz_lab_3_3",
+      "prerequisiteId": "sz_lab_1_3",
+      "reason": "能自己穿好鞋袜扣扣子是进一步练习系鞋带双蝴蝶结的动作基础"
     },
     {
       "topicId": "sz_lab_3_1",
-      "prerequisiteId": "sz_lab_2_1",
-      "reason": "具备良好的物品收纳习惯后，进一步学习使用清洁工具进行日常地面和衣物保洁"
+      "prerequisiteId": "sz_lab_2_3",
+      "reason": "能抹干净桌子后进一步学习用扫帚和拖把进行全屋的地面保洁"
+    },
+    {
+      "topicId": "sz_lab_5_3",
+      "prerequisiteId": "sz_lab_3_2",
+      "reason": "掌握手洗袜子红领巾步骤是操作洗衣机分类洗长裤外套的认知前置"
+    },
+    {
+      "topicId": "sz_lab_4_3",
+      "prerequisiteId": "sz_lab_3_1",
+      "reason": "熟悉地面拖地和拧抹布后进一步学习使用洗洁精搓洗和整理碗筷"
     },
     {
       "topicId": "sz_lab_4_1",
-      "prerequisiteId": "sz_lab_3_1",
-      "reason": "熟悉厨房及水电用具基本保洁后，进一步在安全刀法指引下学习凉拌菜制作"
+      "prerequisiteId": "sz_lab_4_3",
+      "reason": "在厨房洗碗熟悉水源和电器使用后，进一步学习燃气灶的安全开火和防烫常识"
+    },
+    {
+      "topicId": "sz_lab_4_2",
+      "prerequisiteId": "sz_lab_4_1",
+      "reason": "掌握用火用电防烫安全后，才能在案板用猫爪安全刀法做凉拌拍黄瓜"
     },
     {
       "topicId": "sz_lab_6_1",
-      "prerequisiteId": "sz_lab_4_1",
-      "reason": "掌握凉拌切菜等基本厨房安全后，进一步独立使用明火或电磁炉进行炒菜煮面条"
+      "prerequisiteId": "sz_lab_4_2",
+      "reason": "熟练使用案板切西红柿黄瓜等刀法是开火炒西红柿炒鸡蛋的前置基础"
+    },
+    {
+      "topicId": "sz_lab_6_2",
+      "prerequisiteId": "sz_lab_6_1",
+      "reason": "熟练炒西红柿鸡蛋是独立水煮一碗西红柿鸡蛋挂面的烹饪基础"
+    },
+    {
+      "topicId": "sz_lab_5_2",
+      "prerequisiteId": "sz_lab_5_1",
+      "reason": "细致修剪和料理盆栽花卉的精细动作有利于穿针引线进行扣子缝补"
+    },
+    {
+      "topicId": "sz_lab_6_3",
+      "prerequisiteId": "sz_lab_6_2",
+      "reason": "熟练完成明火煮面条后，进一步学习安全操作电饭煲微波炉等高功率小电器"
     },
     {
       "topicId": "sz_math_1_1",
       "prerequisiteId": "sz_chn_1_1",
-      "reason": "能认读拼音帮助一年级孩子理解加减法应用题中的文字描述"
+      "reason": "一年级汉语拼音的拼读能力能帮助孩子自主读懂10以内加减法口头应用题"
     },
     {
-      "topicId": "sz_math_4_4",
+      "topicId": "sz_math_4_6",
       "prerequisiteId": "sz_chn_4_2",
-      "reason": "能归纳段落大意和核心意图能辅助孩子提炼出复杂应用题中的主干数学数量关系"
+      "reason": "四年级提炼中心句和段意能力能辅助孩子阅读并提取出混合运算应用题中的线索主干"
     },
     {
-      "topicId": "sz_math_6_4",
-      "prerequisiteId": "sz_chn_6_1",
-      "reason": "排查句子逻辑主干和病句改错能力有助于在比例应用题中判断正反比的函数逻辑对应关系"
-    },
-    {
-      "topicId": "sz_inf_4_1",
+      "topicId": "sz_inf_4_2",
       "prerequisiteId": "sz_math_2_1",
-      "reason": "乘法累加思维直接支撑 Scratch 中循环计数与平移次数算法的设计"
+      "reason": "二年级表内乘法中“几个几”的累加乘法思维能帮助理解 Scratch 中的“移动10步并重复N次”积木"
+    },
+    {
+      "topicId": "sz_lab_1_1",
+      "prerequisiteId": "sz_math_2_7",
+      "reason": "二年级时分秒的认识能帮助一年级小学生根据课表作息整理书包"
+    },
+    {
+      "topicId": "sz_lab_2_3",
+      "prerequisiteId": "sz_math_3_7",
+      "reason": "三年级学习面积和空间大小感有利于合理分配个人书桌各个文具盒占地收纳"
+    },
+    {
+      "topicId": "sz_sci_3_3",
+      "prerequisiteId": "sz_math_4_1",
+      "reason": "四年级升与毫升的单位认识直接作为科学课使用量筒量度液体刻度的度量常识"
+    },
+    {
+      "topicId": "sz_lab_6_3",
+      "prerequisiteId": "sz_math_6_2",
+      "reason": "六年级体积与容积换算感帮助使用电饭煲煮饭时正确按照刻度线加水加米"
+    },
+    {
+      "topicId": "sz_eng_3_1",
+      "prerequisiteId": "sz_chn_1_3",
+      "reason": "一年级汉字基本笔画的书写端正性可迁移至四年级英语四线三格字母的优美书写"
+    },
+    {
+      "topicId": "sz_mor_2_2",
+      "prerequisiteId": "sz_sci_2_2",
+      "reason": "科学天气与四季温度记录为体验苏州冬至夜“冬至大如年”的气象背景提供认知依据"
+    },
+    {
+      "topicId": "sz_mor_5_3",
+      "prerequisiteId": "sz_sci_4_3",
+      "reason": "科学水的三态升华与蒸发现象是理解隋唐京杭大运河漕运中河道通航和水运局限的地理背景"
+    },
+    {
+      "topicId": "sz_mor_3_2",
+      "prerequisiteId": "sz_sci_5_2",
+      "reason": "科学光的镜面反射与折射为理解古代指南针（利用北极磁偏角）和司南的刻度镜面校准提供物理知识"
+    },
+    {
+      "topicId": "sz_mor_5_4",
+      "prerequisiteId": "sz_sci_6_1",
+      "reason": "科学地球自转决定昼夜变化为理解唐宋盛世诗歌（如月相、夜半钟声到客船）的时空背景提供常识"
+    },
+    {
+      "topicId": "sz_lab_2_1",
+      "prerequisiteId": "sz_mor_4_3",
+      "reason": "道德法治中消费者对绿色食品SC标识认识，可升华到垃圾回收和过期食品无害投放实践"
+    },
+    {
+      "topicId": "sz_inf_6_3",
+      "prerequisiteId": "sz_mor_1_4",
+      "reason": "一年级防拐骗不向陌生人透露电话的警惕性直接升华为六年级防范网络交友诈骗和设置强密码"
     }
   ]
 }
