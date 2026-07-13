@@ -1909,11 +1909,15 @@
             ctx.moveTo(srcNode.screenX, srcNode.screenY);
             ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
             ctx.stroke();
-          } else {
-            // Non-path links are faintly visible as context when there is a selection
-            ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-            ctx.lineWidth = 0.4;
-            ctx.globalAlpha = 0.05;
+          } else if (filteredIds.has(edge.source) && filteredIds.has(edge.target)) {
+            // Non-path links are fully visible with standard active line style
+            const midRZ = (srcNode.rz + tgtNode.rz) / 2;
+            const edgeDepthFactor = (midRZ - minZ) / (maxZ - minZ || 1);
+            const edgeFogAlpha = 0.05 + edgeDepthFactor * 0.15;
+            
+            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+            ctx.lineWidth = 0.6;
+            ctx.globalAlpha = edgeFogAlpha;
             ctx.beginPath();
             ctx.moveTo(srcNode.screenX, srcNode.screenY);
             ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
@@ -1955,12 +1959,6 @@
         // Depth Fog calculation
         const depthFactor = (node.rz - minZ) / (maxZ - minZ || 1);
         let nodeOpacity = 0.2 + depthFactor * 0.8;
-        
-        if (hasSelection) {
-          if (!isConstellationNode) {
-            nodeOpacity = Math.max(0.08, 0.25 * nodeOpacity); // dim non-path elements, but keep visible
-          }
-        }
         
         ctx.globalAlpha = isActive ? nodeOpacity : (nodeOpacity * 0.1);
         const size = node.size * node.scale;
