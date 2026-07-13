@@ -8,7 +8,7 @@
 ## 🎯 1. 项目背景与目标
 
 *   **项目愿景**：针对江苏省（苏州市）小学 K-12 教学大纲与小升初分班考进度，提供自适应诊断和 3D 图谱导览系统。通过酷炫、高端的 Web 端 3D 漏斗形图谱和树状视图，让家长直观记录孩子的通关进度，并为六年级核心节点配套历年真题及变式出题训练。
-*   **项目来源**：基于开源仓库 [withmarbleapp/os-taxonomy](https://github.com/withmarbleapp/os-taxonomy) 深度定制与开发完成。
+*   **项目来源**：基于开源仓库 [withmarbleapp/os-taxonomy](https://github.com/withmarbleapp/os-taxonomy) 深度定制开发，目前作为独立项目托管于个人仓库 [shinelee2014/Marble3D](https://github.com/shinelee2014/Marble3D)。
 *   **当前核心任务**：
     1.  持续进行 2025/2026 小升初/分班考仿真真题的智能生成与结构化注入。
     2.  确保 3D 视图下“垂直年级轴”锁定与“漏斗螺旋结构”稳定工作，黄金依赖路线发光显著。
