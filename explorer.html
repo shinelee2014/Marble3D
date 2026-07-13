@@ -1176,6 +1176,7 @@
       ctx: null,
       nodes: [], // elements for 3D engine: {id, name, x, y, z, rx, ry, rz, color, size, subject}
       edges: [], // elements for 3D engine: {source, target}
+      backgroundStars: [], // decorative stars in background
       angleX: 0.3,
       angleY: 0.5,
       zoom: 1.0,
@@ -1550,13 +1551,32 @@
       viz.ctx = viz.canvas.getContext('2d');
       const container = document.getElementById('canvas-container');
       
-      // Handle resize
+      // Handle High-DPI canvas resizing
       function resize() {
-        viz.canvas.width = container.clientWidth;
-        viz.canvas.height = container.clientHeight;
+        const dpr = window.devicePixelRatio || 1;
+        viz.canvas.width = container.clientWidth * dpr;
+        viz.canvas.height = container.clientHeight * dpr;
+        viz.canvas.style.width = container.clientWidth + 'px';
+        viz.canvas.style.height = container.clientHeight + 'px';
       }
       resize();
       window.addEventListener('resize', resize);
+      
+      // Generate 200 static background star dust particles
+      viz.backgroundStars = [];
+      for (let i = 0; i < 200; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(Math.random() * 2 - 1);
+        const r = 300 + Math.random() * 250; // spread from radius 300 to 550
+        
+        viz.backgroundStars.push({
+          x: r * Math.sin(phi) * Math.cos(theta),
+          y: r * Math.sin(phi) * Math.sin(theta),
+          z: r * Math.cos(phi),
+          size: 0.6 + Math.random() * 1.0,
+          alpha: 0.15 + Math.random() * 0.35
+        });
+      }
       
       // Calculate coordinates for nodes in a cylindrical spiral
       const subjects = [...new Set(state.topics.map(t => t.subject))].sort();
@@ -1717,6 +1737,7 @@
     }
 
     function renderLoop() {
+      const dpr = window.devicePixelRatio || 1;
       const width = viz.canvas.width;
       const height = viz.canvas.height;
       const ctx = viz.ctx;
@@ -1732,6 +1753,13 @@
       // Clear screen
       ctx.fillStyle = '#080c15';
       ctx.fillRect(0, 0, width, height);
+      
+      // Save and scale context for High-DPI support
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      
+      const logicalWidth = width / dpr;
+      const logicalHeight = height / dpr;
       
       // Momentum & Easing camera transitions
       if (viz.isDragging) {
@@ -1782,10 +1810,32 @@
         const d = 600;
         const scale = (d / (d + z2)) * viz.zoom;
         
-        node.screenX = width / 2 + x1 * scale * 1.2;
-        node.screenY = height / 2 + y2 * scale * 1.2;
+        node.screenX = logicalWidth / 2 + x1 * scale * 1.2;
+        node.screenY = logicalHeight / 2 + y2 * scale * 1.2;
         node.scale = scale;
       });
+      
+      // Rotate background stars
+      if (viz.backgroundStars) {
+        viz.backgroundStars.forEach(star => {
+          let x1 = star.x * cosY - star.z * sinY;
+          let z1 = star.x * sinY + star.z * cosY;
+          
+          let y2 = star.y * cosX - z1 * sinX;
+          let z2 = star.y * sinX + z1 * cosX;
+          
+          star.rx = x1;
+          star.ry = y2;
+          star.rz = z2;
+          
+          const d = 600;
+          const scale = (d / (d + z2)) * viz.zoom;
+          
+          star.screenX = logicalWidth / 2 + x1 * scale * 1.2;
+          star.screenY = logicalHeight / 2 + y2 * scale * 1.2;
+          star.scale = scale;
+        });
+      }
       
       // Find min/max rz for Depth Fog
       let minZ = Infinity;
@@ -1794,6 +1844,21 @@
         if (node.rz < minZ) minZ = node.rz;
         if (node.rz > maxZ) maxZ = node.rz;
       });
+      
+      // Draw background stars (cosmic dust)
+      if (viz.backgroundStars) {
+        viz.backgroundStars.forEach(star => {
+          const size = star.size * star.scale;
+          const depthFactor = (star.rz - minZ) / (maxZ - minZ || 1);
+          const opacity = star.alpha * (0.2 + depthFactor * 0.8);
+          
+          ctx.globalAlpha = opacity;
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+          ctx.beginPath();
+          ctx.arc(star.screenX, star.screenY, size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
       
       const filteredIds = new Set(state.topics.filter(t => {
         const matchesSubject = state.activeSubject === 'all' || t.subject === state.activeSubject;
@@ -1968,6 +2033,9 @@
           ctx.shadowBlur = 0;
         }
       });
+      
+      // Restore scaling state for high-DPI support
+      ctx.restore();
       
       ctx.globalAlpha = 1.0;
       requestAnimationFrame(renderLoop);
