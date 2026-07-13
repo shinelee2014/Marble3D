@@ -369,6 +369,187 @@
       line-height: 1.4;
     }
 
+    /* View Toggle Switcher styles */
+    .view-toggle-container {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 100;
+      background: rgba(11, 15, 25, 0.75);
+      padding: 0.2rem;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+      display: flex;
+      gap: 0.15rem;
+    }
+
+    .view-toggle-container .toggle-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 0.35rem 0.85rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      outline: none;
+    }
+
+    .view-toggle-container .toggle-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .view-toggle-container .toggle-btn.active {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+    }
+
+    /* Collapsible Tree View Container styles */
+    .tree-view-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 4.5rem 1.5rem 1.5rem 1.5rem;
+      box-sizing: border-box;
+      overflow-y: auto;
+      display: none;
+      background: #060911;
+      z-index: 5;
+    }
+
+    /* Tree structures */
+    .tree-subject-group {
+      margin-bottom: 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .tree-subject-header {
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    .tree-subject-header:hover {
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .tree-subject-content {
+      padding: 0.5rem 1rem;
+    }
+
+    .tree-grade-group {
+      margin: 0.5rem 0;
+      border-left: 2px dashed rgba(255, 255, 255, 0.1);
+      padding-left: 0.75rem;
+    }
+
+    .tree-grade-header {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+      user-select: none;
+    }
+
+    .tree-grade-header:hover {
+      background: rgba(255, 255, 255, 0.03);
+      color: #fff;
+    }
+
+    .tree-grade-content {
+      padding-left: 0.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .tree-domain-group {
+      margin: 0.4rem 0;
+    }
+
+    .tree-domain-header {
+      font-size: 0.75rem;
+      color: #6b7280;
+      padding: 0.2rem 0.5rem;
+      font-style: italic;
+    }
+
+    .tree-node-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.45rem 0.75rem;
+      margin: 0.25rem 0;
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tree-node-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.1);
+      transform: translateX(3px);
+    }
+
+    .tree-node-item.selected {
+      background: rgba(59, 130, 246, 0.15) !important;
+      border-color: rgba(59, 130, 246, 0.4) !important;
+      box-shadow: 0 0 8px rgba(59, 130, 246, 0.1) inset;
+    }
+
+    .tree-node-name-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tree-node-name {
+      font-size: 0.78rem;
+      color: #e5e7eb;
+    }
+
+    .tree-node-item.selected .tree-node-name {
+      color: #60a5fa;
+      font-weight: 500;
+    }
+
+    .tree-caret {
+      font-size: 0.65rem;
+      color: #6b7280;
+      transition: transform 0.2s;
+    }
+
+    .tree-caret.collapsed {
+      transform: rotate(-90deg);
+    }
+
     .legend {
       position: absolute;
       bottom: 1rem;
@@ -926,9 +1107,18 @@
 
     <!-- 3D Visualization Area (Center Column) -->
     <div class="visualization-area">
+      <!-- View Toggle Switcher -->
+      <div class="view-toggle-container">
+        <button class="toggle-btn active" id="view-3d-btn" onclick="switchView('3d')">🌐 3D 星空</button>
+        <button class="toggle-btn" id="view-tree-btn" onclick="switchView('tree')">📋 学科树形</button>
+      </div>
+
       <div class="viz-canvas-container" id="canvas-container">
         <canvas id="viz-canvas"></canvas>
       </div>
+      
+      <!-- Collapsible Tree View Container -->
+      <div class="tree-view-container" id="tree-container"></div>
       
       <div class="viz-overlay">
         <h3 id="hover-node-name">3D 课程图谱导航器</h3>
@@ -1314,6 +1504,10 @@
       
       document.getElementById('match-count').innerText = filtered.length;
       
+      if (state.currentView === 'tree') {
+        renderTreeView();
+      }
+      
       filtered.forEach(t => {
         const item = document.createElement('div');
         const status = state.mastery[t.id] || 'unmarked';
@@ -1649,6 +1843,219 @@
       ctx.globalAlpha = 1.0;
       requestAnimationFrame(renderLoop);
     }
+
+    // View Switching & Subject Tree Rendering logic
+    state.currentView = '3d'; 
+    state.collapsedTreeSubjects = {};
+    state.collapsedTreeGrades = {};
+    
+    window.switchView = function(viewType) {
+      state.currentView = viewType;
+      const canvasContainer = document.getElementById('canvas-container');
+      const legend = document.querySelector('.legend');
+      const treeContainer = document.getElementById('tree-container');
+      
+      const btn3d = document.getElementById('view-3d-btn');
+      const btnTree = document.getElementById('view-tree-btn');
+      
+      if (viewType === '3d') {
+        canvasContainer.style.display = 'block';
+        if (legend) legend.style.display = 'flex';
+        treeContainer.style.display = 'none';
+        
+        btn3d.classList.add('active');
+        btnTree.classList.remove('active');
+      } else {
+        canvasContainer.style.display = 'none';
+        if (legend) legend.style.display = 'none';
+        treeContainer.style.display = 'block';
+        
+        btn3d.classList.remove('active');
+        btnTree.classList.add('active');
+        
+        renderTreeView();
+      }
+    };
+    
+    window.renderTreeView = function() {
+      const container = document.getElementById('tree-container');
+      if (!container) return;
+      
+      // Filter topics using the same logic as renderList
+      const filtered = state.topics.filter(t => {
+        const matchesSubject = state.activeSubject === 'all' || t.subject === state.activeSubject;
+        const matchesSearch = !state.searchQuery || 
+          t.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+          t.description.toLowerCase().includes(state.searchQuery.toLowerCase());
+        
+        let matchesGrade = true;
+        if (state.activeGrade !== 'all') {
+          const targetAge = parseInt(state.activeGrade) + 5;
+          const start = t.ageRangeStart;
+          const end = t.ageRangeEnd;
+          matchesGrade = (start !== null && start <= targetAge && (end === null || targetAge <= end));
+        }
+        return matchesSubject && matchesSearch && matchesGrade;
+      });
+      
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="color: var(--text-secondary); text-align: center; padding-top: 5rem; font-size: 0.85rem;">
+            🔍 没有找到符合当前筛选条件的知识点
+          </div>
+        `;
+        return;
+      }
+      
+      // Grouping: Subject -> Grade -> Domain
+      const groups = {};
+      filtered.forEach(t => {
+        const subj = t.subject;
+        const age = t.ageRangeStart ?? 6;
+        const grade = age - 5; 
+        const gradeName = `${grade}年级`;
+        const domain = t.domain ?? '核心基础';
+        
+        if (!groups[subj]) groups[subj] = {};
+        if (!groups[subj][gradeName]) groups[subj][gradeName] = {};
+        if (!groups[subj][gradeName][domain]) groups[subj][gradeName][domain] = [];
+        
+        groups[subj][gradeName][domain].push(t);
+      });
+      
+      container.innerHTML = '';
+      
+      // Sort subjects by order in subjectColors
+      const sortedSubjects = Object.keys(groups).sort((a, b) => {
+        const order = Object.keys(subjectColors);
+        return order.indexOf(a) - order.indexOf(b);
+      });
+      
+      sortedSubjects.forEach(subj => {
+        const subjGroup = document.createElement('div');
+        subjGroup.className = 'tree-subject-group';
+        
+        const subjHeader = document.createElement('div');
+        subjHeader.className = 'tree-subject-header';
+        subjHeader.style.borderLeft = `4px solid ${subjectColors[subj] || '#9ca3af'}`;
+        
+        const isSubjCollapsed = state.collapsedTreeSubjects[subj];
+        
+        subjHeader.innerHTML = `
+          <span>📘 ${subj} <span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: normal; margin-left: 0.5rem;">(${Object.values(groups[subj]).reduce((acc, curr) => acc + Object.values(curr).reduce((a, c) => a + c.length, 0), 0)} 个概念)</span></span>
+          <span class="tree-caret ${isSubjCollapsed ? 'collapsed' : ''}">▼</span>
+        `;
+        
+        const subjContent = document.createElement('div');
+        subjContent.className = 'tree-subject-content';
+        subjContent.style.display = isSubjCollapsed ? 'none' : 'block';
+        
+        subjHeader.addEventListener('click', () => {
+          state.collapsedTreeSubjects[subj] = !state.collapsedTreeSubjects[subj];
+          const caret = subjHeader.querySelector('.tree-caret');
+          if (state.collapsedTreeSubjects[subj]) {
+            subjContent.style.display = 'none';
+            caret.classList.add('collapsed');
+          } else {
+            subjContent.style.display = 'block';
+            caret.classList.remove('collapsed');
+          }
+        });
+        
+        subjGroup.appendChild(subjHeader);
+        
+        // Group Grades
+        const sortedGrades = Object.keys(groups[subj]).sort((a, b) => parseInt(a) - parseInt(b));
+        sortedGrades.forEach(gradeName => {
+          const gradeGroup = document.createElement('div');
+          gradeGroup.className = 'tree-grade-group';
+          
+          const gradeHeader = document.createElement('div');
+          gradeHeader.className = 'tree-grade-header';
+          
+          const gradeKey = `${subj}_${gradeName}`;
+          const isGradeCollapsed = state.collapsedTreeGrades[gradeKey];
+          
+          gradeHeader.innerHTML = `
+            <span>📍 ${gradeName}</span>
+            <span class="tree-caret ${isGradeCollapsed ? 'collapsed' : ''}">▼</span>
+          `;
+          
+          const gradeContent = document.createElement('div');
+          gradeContent.className = 'tree-grade-content';
+          gradeContent.style.display = isGradeCollapsed ? 'none' : 'block';
+          
+          gradeHeader.addEventListener('click', () => {
+            state.collapsedTreeGrades[gradeKey] = !state.collapsedTreeGrades[gradeKey];
+            const caret = gradeHeader.querySelector('.tree-caret');
+            if (state.collapsedTreeGrades[gradeKey]) {
+              gradeContent.style.display = 'none';
+              caret.classList.add('collapsed');
+            } else {
+              gradeContent.style.display = 'block';
+              caret.classList.remove('collapsed');
+            }
+          });
+          
+          gradeGroup.appendChild(gradeHeader);
+          
+          // Group Domains
+          const domains = groups[subj][gradeName];
+          Object.keys(domains).sort().forEach(dom => {
+            const domGroup = document.createElement('div');
+            domGroup.className = 'tree-domain-group';
+            
+            const domHeader = document.createElement('div');
+            domHeader.className = 'tree-domain-header';
+            domHeader.innerText = `# ${dom}`;
+            domGroup.appendChild(domHeader);
+            
+            domains[dom].forEach(t => {
+              const nodeItem = document.createElement('div');
+              const status = state.mastery[t.id] || 'unmarked';
+              nodeItem.className = `tree-node-item ${state.selectedTopicId === t.id ? 'selected' : ''}`;
+              nodeItem.setAttribute('data-id', t.id);
+              
+              nodeItem.innerHTML = `
+                <div class="tree-node-name-group">
+                  <span class="status-dot ${status}"></span>
+                  <span class="tree-node-name">${t.name}</span>
+                </div>
+                <span class="meta-tag" style="font-size: 0.65rem; padding: 0.1rem 0.3rem;">年龄: ${t.ageRangeStart}-${t.ageRangeEnd}岁</span>
+              `;
+              
+              nodeItem.addEventListener('click', () => {
+                document.querySelectorAll('.tree-node-item').forEach(i => i.classList.remove('selected'));
+                nodeItem.classList.add('selected');
+                
+                selectTopic(t.id);
+                
+                // Select and scroll left list
+                const listItems = document.querySelectorAll('.topic-item');
+                for (const item of listItems) {
+                  if (item.querySelector('.topic-item-name').innerText === t.name) {
+                    document.querySelectorAll('.topic-item').forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    break;
+                  }
+                }
+              });
+              
+              domGroup.appendChild(nodeItem);
+            });
+            
+            gradeContent.appendChild(domGroup);
+          });
+          
+          gradeGroup.appendChild(gradeContent);
+          subjContent.appendChild(gradeGroup);
+        });
+        
+        subjGroup.appendChild(subjContent);
+        container.appendChild(subjGroup);
+      });
+    };
 
     const PBL_TEMPLATES_MAPPED = {
       "mt_-2VNlwAR5z_mt_4MFUAsbx_6": {
@@ -2235,6 +2642,31 @@ window.copyAIPrompt = function(topicId) {
           </div>
         </div>
       `;
+      
+      // Highlight in Tree View
+      const topicObj = state.topicMap[topicId];
+      if (topicObj) {
+        const subj = topicObj.subject;
+        const gradeName = `${topicObj.ageRangeStart - 5}年级`;
+        const gradeKey = `${subj}_${gradeName}`;
+        
+        state.collapsedTreeSubjects[subj] = false;
+        state.collapsedTreeGrades[gradeKey] = false;
+        
+        if (state.currentView === 'tree') {
+          renderTreeView();
+        }
+      }
+
+      const treeItems = document.querySelectorAll('.tree-node-item');
+      treeItems.forEach(item => {
+        if (item.getAttribute('data-id') === topicId) {
+          item.classList.add('selected');
+          item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+          item.classList.remove('selected');
+        }
+      });
     }
 
     window.setMasteryStatus = function(topicId, status) {
