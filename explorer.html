@@ -1182,7 +1182,12 @@
       isDragging: false,
       lastMouseX: 0,
       lastMouseY: 0,
-      hoverNodeId: null
+      hoverNodeId: null,
+      velocityX: 0,
+      velocityY: 0,
+      targetAngleX: null,
+      targetAngleY: null,
+      isAnimating: false
     };
 
     const subjectClassMap = {
@@ -1604,6 +1609,10 @@
         viz.isDragging = true;
         viz.lastMouseX = e.clientX;
         viz.lastMouseY = e.clientY;
+        // Cancel active animation and velocity
+        viz.isAnimating = false;
+        viz.velocityX = 0;
+        viz.velocityY = 0;
       });
       
       window.addEventListener('mouseup', () => {
@@ -1617,6 +1626,10 @@
           
           viz.angleY += deltaX * 0.005;
           viz.angleX += deltaY * 0.005;
+          
+          // Store drag velocity for momentum physics
+          viz.velocityY = deltaX * 0.005;
+          viz.velocityX = deltaY * 0.005;
           
           viz.lastMouseX = e.clientX;
           viz.lastMouseY = e.clientY;
@@ -1657,6 +1670,10 @@
           viz.isDragging = true;
           viz.lastMouseX = e.touches[0].clientX;
           viz.lastMouseY = e.touches[0].clientY;
+          // Cancel active animation and velocity
+          viz.isAnimating = false;
+          viz.velocityX = 0;
+          viz.velocityY = 0;
         }
       });
       
@@ -1667,6 +1684,10 @@
           
           viz.angleY += deltaX * 0.005;
           viz.angleX += deltaY * 0.005;
+          
+          // Store touch velocity for momentum physics
+          viz.velocityY = deltaX * 0.005;
+          viz.velocityX = deltaY * 0.005;
           
           viz.lastMouseX = e.touches[0].clientX;
           viz.lastMouseY = e.touches[0].clientY;
@@ -1700,13 +1721,45 @@
       const height = viz.canvas.height;
       const ctx = viz.ctx;
       
+      // Helper function for color conversion to RGBA (local to renderLoop)
+      function hexToRgba(hex, alpha) {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      }
+      
       // Clear screen
       ctx.fillStyle = '#080c15';
       ctx.fillRect(0, 0, width, height);
       
-      // Auto rotate slightly if not dragging
-      if (!viz.isDragging) {
-        viz.angleY += 0.0015;
+      // Momentum & Easing camera transitions
+      if (viz.isDragging) {
+        // Momentum captured by touchmove/mousemove
+      } else if (viz.isAnimating && viz.targetAngleX !== null && viz.targetAngleY !== null) {
+        // Auto-align camera movement to selected node
+        viz.angleX += (viz.targetAngleX - viz.angleX) * 0.08;
+        viz.angleY += (viz.targetAngleY - viz.angleY) * 0.08;
+        
+        // Stop animating if target is reached
+        const dx = viz.targetAngleX - viz.angleX;
+        const dy = viz.targetAngleY - viz.angleY;
+        if (Math.sqrt(dx*dx + dy*dy) < 0.002) {
+          viz.isAnimating = false;
+          viz.targetAngleX = null;
+          viz.targetAngleY = null;
+        }
+      } else {
+        // Inertial spin momentum
+        if (Math.abs(viz.velocityY) > 0.0001 || Math.abs(viz.velocityX) > 0.0001) {
+          viz.angleY += viz.velocityY;
+          viz.angleX += viz.velocityX;
+          viz.velocityY *= 0.95; // Friction coefficient
+          viz.velocityX *= 0.95;
+        } else {
+          // Slow idle auto-rotation
+          viz.angleY += 0.0015;
+        }
       }
       
       const cosX = Math.cos(viz.angleX);
@@ -1734,6 +1787,14 @@
         node.scale = scale;
       });
       
+      // Find min/max rz for Depth Fog
+      let minZ = Infinity;
+      let maxZ = -Infinity;
+      viz.nodes.forEach(node => {
+        if (node.rz < minZ) minZ = node.rz;
+        if (node.rz > maxZ) maxZ = node.rz;
+      });
+      
       const filteredIds = new Set(state.topics.filter(t => {
         const matchesSubject = state.activeSubject === 'all' || t.subject === state.activeSubject;
         const matchesSearch = !state.searchQuery || 
@@ -1750,6 +1811,8 @@
         return matchesSubject && matchesSearch && matchesGrade;
       }).map(t => t.id));
       
+      const hasSelection = !!state.selectedTopicId;
+      
       // 2. Draw Edges
       viz.edges.forEach(edge => {
         const srcNode = viz.nodes.find(n => n.id === edge.source);
@@ -1759,18 +1822,47 @@
         
         const isSelectedLink = (edge.source === state.selectedTopicId || edge.target === state.selectedTopicId);
         
-        if (isSelectedLink) {
-          ctx.strokeStyle = edge.source === state.selectedTopicId ? '#c084fc' : '#60a5fa';
-          ctx.lineWidth = 2.5;
-          ctx.globalAlpha = 0.8;
-          ctx.beginPath();
-          ctx.moveTo(srcNode.screenX, srcNode.screenY);
-          ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
-          ctx.stroke();
+        if (hasSelection) {
+          const isAncestorLink = state.selectedAncestors && state.selectedAncestors.has(edge.source) && state.selectedAncestors.has(edge.target);
+          const isDescendantLink = state.selectedDescendants && state.selectedDescendants.has(edge.source) && state.selectedDescendants.has(edge.target);
+          const isConstellationLink = isSelectedLink || isAncestorLink || isDescendantLink;
+          
+          if (isConstellationLink) {
+            // Apply depth fog for edge opacity
+            const midRZ = (srcNode.rz + tgtNode.rz) / 2;
+            const edgeDepthFactor = (midRZ - minZ) / (maxZ - minZ || 1);
+            const edgeFogAlpha = 0.3 + edgeDepthFactor * 0.7;
+            
+            if (edge.source === state.selectedTopicId || (state.selectedDescendants && state.selectedDescendants.has(edge.source))) {
+              ctx.strokeStyle = '#c084fc'; // Unlock path (purple)
+            } else {
+              ctx.strokeStyle = '#60a5fa'; // Prerequisite path (blue)
+            }
+            ctx.lineWidth = 2.2;
+            ctx.globalAlpha = 0.85 * edgeFogAlpha;
+            ctx.beginPath();
+            ctx.moveTo(srcNode.screenX, srcNode.screenY);
+            ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
+            ctx.stroke();
+          } else {
+            // Non-path links are extremely dim when there is a selection
+            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+            ctx.lineWidth = 0.4;
+            ctx.globalAlpha = 0.02;
+            ctx.beginPath();
+            ctx.moveTo(srcNode.screenX, srcNode.screenY);
+            ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
+            ctx.stroke();
+          }
         } else if (filteredIds.has(edge.source) && filteredIds.has(edge.target)) {
-          ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+          // No selection: draw all active edges normally with depth fog
+          const midRZ = (srcNode.rz + tgtNode.rz) / 2;
+          const edgeDepthFactor = (midRZ - minZ) / (maxZ - minZ || 1);
+          const edgeFogAlpha = 0.05 + edgeDepthFactor * 0.15; 
+          
+          ctx.strokeStyle = 'rgba(255,255,255,0.08)';
           ctx.lineWidth = 0.6;
-          ctx.globalAlpha = 0.15;
+          ctx.globalAlpha = edgeFogAlpha;
           ctx.beginPath();
           ctx.moveTo(srcNode.screenX, srcNode.screenY);
           ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
@@ -1788,37 +1880,69 @@
         const isSelected = (node.id === state.selectedTopicId);
         const isHovered = (node.id === viz.hoverNodeId);
         
-        if (!isActive) {
-          ctx.globalAlpha = 0.1;
-        } else {
-          ctx.globalAlpha = 0.3 + (node.scale * 0.7);
+        const isAncestor = state.selectedAncestors && state.selectedAncestors.has(node.id);
+        const isDescendant = state.selectedDescendants && state.selectedDescendants.has(node.id);
+        const isConstellationNode = isSelected || isAncestor || isDescendant;
+        
+        const isImmediatePrereq = hasSelection && state.prereqMap[state.selectedTopicId]?.some(p => p.prerequisiteId === node.id);
+        const isImmediateUnlock = hasSelection && state.unlockMap[state.selectedTopicId]?.some(u => u.topicId === node.id);
+        
+        // Depth Fog calculation
+        const depthFactor = (node.rz - minZ) / (maxZ - minZ || 1);
+        let nodeOpacity = 0.2 + depthFactor * 0.8;
+        
+        if (hasSelection) {
+          if (!isConstellationNode) {
+            nodeOpacity = 0.05 * nodeOpacity; // dim non-path elements
+          }
         }
         
+        ctx.globalAlpha = isActive ? nodeOpacity : (nodeOpacity * 0.1);
         const size = node.size * node.scale;
         
-        if (isSelected) {
-          ctx.shadowBlur = 15;
-          ctx.shadowColor = node.color;
-          ctx.fillStyle = '#ffffff';
+        // Draw radial aura glow for selected or hovered nodes
+        if (isActive && (isSelected || isHovered)) {
+          const pulse = 1 + Math.sin(Date.now() * 0.005) * 0.15; // breathing pulse
+          const glowSize = size * (isSelected ? 3.5 : 2.5) * pulse;
+          
+          const grad = ctx.createRadialGradient(
+            node.screenX, node.screenY, size * 0.3,
+            node.screenX, node.screenY, glowSize
+          );
+          grad.addColorStop(0, hexToRgba(node.color, 0.45));
+          grad.addColorStop(0.3, hexToRgba(node.color, 0.15));
+          grad.addColorStop(1, 'rgba(0,0,0,0)');
+          
+          ctx.fillStyle = grad;
           ctx.beginPath();
-          ctx.arc(node.screenX, node.screenY, size + 5, 0, Math.PI * 2);
+          ctx.arc(node.screenX, node.screenY, glowSize, 0, Math.PI * 2);
           ctx.fill();
-          ctx.shadowBlur = 0;
         }
         
-        if (isHovered) {
+        // Core white fill ring for selected nodes
+        if (isSelected && isActive) {
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(node.screenX, node.screenY, size + 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        
+        // White border ring for hovered nodes
+        if (isHovered && isActive) {
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 1.5;
           ctx.beginPath();
-          ctx.arc(node.screenX, node.screenY, size + 3, 0, Math.PI * 2);
+          ctx.arc(node.screenX, node.screenY, size + 2, 0, Math.PI * 2);
           ctx.stroke();
         }
         
+        // Draw standard node circle
         ctx.fillStyle = node.color;
         ctx.beginPath();
         ctx.arc(node.screenX, node.screenY, Math.max(1.5, size), 0, Math.PI * 2);
         ctx.fill();
         
+        // Draw progress status badges
         const masteryStatus = state.mastery[node.id];
         if (masteryStatus === 'mastered' && isActive) {
           ctx.fillStyle = '#10b981';
@@ -1832,11 +1956,16 @@
           ctx.fill();
         }
         
-        if ((isSelected || isHovered) && isActive) {
+        // Render text labels with shadow glow for readability
+        const shouldDrawLabel = isSelected || isHovered || isImmediatePrereq || isImmediateUnlock;
+        if (shouldDrawLabel && isActive) {
           ctx.font = `bold ${Math.max(10, Math.min(14, 11 * node.scale))}px sans-serif`;
           ctx.fillStyle = '#ffffff';
           ctx.textAlign = 'center';
+          ctx.shadowBlur = 4;
+          ctx.shadowColor = '#000000';
           ctx.fillText(node.name, node.screenX, node.screenY - size - 8);
+          ctx.shadowBlur = 0;
         }
       });
       
@@ -2434,6 +2563,60 @@ window.copyAIPrompt = function(topicId) {
 
     async function selectTopic(topicId) {
       state.selectedTopicId = topicId;
+      
+      // Calculate cascading ancestors and descendants
+      state.selectedAncestors = state.selectedAncestors || new Set();
+      state.selectedDescendants = state.selectedDescendants || new Set();
+      state.selectedAncestors.clear();
+      state.selectedDescendants.clear();
+      
+      function traceAncestors(id) {
+        const pList = state.prereqMap[id] || [];
+        pList.forEach(p => {
+          if (!state.selectedAncestors.has(p.prerequisiteId)) {
+            state.selectedAncestors.add(p.prerequisiteId);
+            traceAncestors(p.prerequisiteId);
+          }
+        });
+      }
+      
+      function traceDescendants(id) {
+        const uList = state.unlockMap[id] || [];
+        uList.forEach(u => {
+          if (!state.selectedDescendants.has(u.topicId)) {
+            state.selectedDescendants.add(u.topicId);
+            traceDescendants(u.topicId);
+          }
+        });
+      }
+      
+      if (topicId) {
+        traceAncestors(topicId);
+        traceDescendants(topicId);
+      }
+      
+      // Calculate target angle to rotate selected node to center-front
+      if (topicId && viz.nodes && viz.nodes.length > 0) {
+        const node = viz.nodes.find(n => n.id === topicId);
+        if (node) {
+          let targetY = Math.atan2(node.x, node.z);
+          let z1 = node.x * Math.sin(targetY) + node.z * Math.cos(targetY);
+          let targetX = Math.atan2(node.y, z1);
+          
+          let diffY = -targetY - viz.angleY;
+          while (diffY < -Math.PI) diffY += Math.PI * 2;
+          while (diffY > Math.PI) diffY -= Math.PI * 2;
+          viz.targetAngleY = viz.angleY + diffY;
+          
+          let diffX = -targetX - viz.angleX;
+          while (diffX < -Math.PI) diffX += Math.PI * 2;
+          while (diffX > Math.PI) diffX -= Math.PI * 2;
+          viz.targetAngleX = viz.angleX + diffX;
+          
+          viz.isAnimating = true;
+        }
+      }
+
       const topic = state.topicMap[topicId];
       const panel = document.getElementById('detail-panel');
       
