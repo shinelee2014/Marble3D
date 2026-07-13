@@ -386,7 +386,7 @@
 
     .view-toggle-container .toggle-btn {
       background: transparent;
-      border: none;
+      border: 1px solid transparent;
       color: var(--text-secondary);
       padding: 0.35rem 0.85rem;
       font-size: 0.75rem;
@@ -1111,6 +1111,13 @@
       <div class="view-toggle-container">
         <button class="toggle-btn active" id="view-3d-btn" onclick="switchView('3d')">🌐 3D 星空</button>
         <button class="toggle-btn" id="view-tree-btn" onclick="switchView('tree')">📋 学科树形</button>
+        <span class="toolbar-divider" style="width: 1px; height: 16px; background: rgba(255,255,255,0.15); margin: 0 8px; align-self: center;"></span>
+        <button class="toggle-btn" id="toggle-relations-btn" onclick="toggleAllRelations()" style="display: inline-flex; align-items: center; gap: 4px;">
+          <span>🕸️</span> 显示关系连线
+        </button>
+        <button class="toggle-btn" id="reset-view-btn" onclick="reset3DView()" style="display: inline-flex; align-items: center; gap: 4px;">
+          <span>🔄</span> 重置视图
+        </button>
       </div>
 
       <div class="viz-canvas-container" id="canvas-container">
@@ -1163,6 +1170,7 @@
       activeGrade: 'all',
       searchQuery: '',
       selectedTopicId: null,
+      showAllRelations: false, // Whether to highlight all dependency links in 3D graph
       
       // Multi-profile Management
       profiles: [],
@@ -1910,28 +1918,38 @@
             ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
             ctx.stroke();
           } else if (filteredIds.has(edge.source) && filteredIds.has(edge.target)) {
-            // Non-path links are fully visible with standard active line style
+            // Non-path links
             const midRZ = (srcNode.rz + tgtNode.rz) / 2;
             const edgeDepthFactor = (midRZ - minZ) / (maxZ - minZ || 1);
-            const edgeFogAlpha = 0.05 + edgeDepthFactor * 0.15;
             
-            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-            ctx.lineWidth = 0.6;
-            ctx.globalAlpha = edgeFogAlpha;
+            if (state.showAllRelations) {
+              ctx.strokeStyle = hexToRgba(tgtNode.color, 0.45);
+              ctx.lineWidth = 1.1;
+              ctx.globalAlpha = 0.15 + edgeDepthFactor * 0.35;
+            } else {
+              ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+              ctx.lineWidth = 0.6;
+              ctx.globalAlpha = 0.05 + edgeDepthFactor * 0.15;
+            }
             ctx.beginPath();
             ctx.moveTo(srcNode.screenX, srcNode.screenY);
             ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
             ctx.stroke();
           }
         } else if (filteredIds.has(edge.source) && filteredIds.has(edge.target)) {
-          // No selection: draw all active edges normally with depth fog
+          // No selection: draw edges normally or color-coded
           const midRZ = (srcNode.rz + tgtNode.rz) / 2;
           const edgeDepthFactor = (midRZ - minZ) / (maxZ - minZ || 1);
-          const edgeFogAlpha = 0.05 + edgeDepthFactor * 0.15; 
           
-          ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-          ctx.lineWidth = 0.6;
-          ctx.globalAlpha = edgeFogAlpha;
+          if (state.showAllRelations) {
+            ctx.strokeStyle = hexToRgba(tgtNode.color, 0.45);
+            ctx.lineWidth = 1.1;
+            ctx.globalAlpha = 0.15 + edgeDepthFactor * 0.35;
+          } else {
+            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+            ctx.lineWidth = 0.6;
+            ctx.globalAlpha = 0.05 + edgeDepthFactor * 0.15;
+          }
           ctx.beginPath();
           ctx.moveTo(srcNode.screenX, srcNode.screenY);
           ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
@@ -2019,16 +2037,38 @@
           ctx.fill();
         }
         
-        // Render text labels with shadow glow for readability
-        const shouldDrawLabel = isSelected || isHovered || isImmediatePrereq || isImmediateUnlock;
+      });
+      
+      // 4. Draw Labels in a second pass (so they are always drawn on top of all nodes)
+      sortedNodes.forEach(node => {
+        const isActive = filteredIds.has(node.id);
+        const isSelected = (node.id === state.selectedTopicId);
+        const isHovered = (node.id === viz.hoverNodeId);
+        const shouldDrawLabel = isSelected || isHovered;
+        
         if (shouldDrawLabel && isActive) {
-          ctx.font = `bold ${Math.max(10, Math.min(14, 11 * node.scale))}px sans-serif`;
-          ctx.fillStyle = '#ffffff';
+          const size = node.size * node.scale;
+          const fontSize = Math.round(Math.max(11, Math.min(14, 11 * node.scale)));
+          ctx.font = `bold ${fontSize}px system-ui, -apple-system, sans-serif`;
           ctx.textAlign = 'center';
-          ctx.shadowBlur = 4;
-          ctx.shadowColor = '#000000';
-          ctx.fillText(node.name, node.screenX, node.screenY - size - 8);
-          ctx.shadowBlur = 0;
+          
+          const tx = Math.round(node.screenX);
+          const ty = Math.round(node.screenY - size - 10);
+          
+          // Draw crisp outline offsets instead of using blurry shadowBlur
+          ctx.fillStyle = '#080c15';
+          ctx.fillText(node.name, tx - 1.5, ty);
+          ctx.fillText(node.name, tx + 1.5, ty);
+          ctx.fillText(node.name, tx, ty - 1.5);
+          ctx.fillText(node.name, tx, ty + 1.5);
+          ctx.fillText(node.name, tx - 1.5, ty - 1.5);
+          ctx.fillText(node.name, tx + 1.5, ty - 1.5);
+          ctx.fillText(node.name, tx - 1.5, ty + 1.5);
+          ctx.fillText(node.name, tx + 1.5, ty + 1.5);
+          
+          // Foreground sharp text
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(node.name, tx, ty);
         }
       });
       
@@ -2038,6 +2078,30 @@
       ctx.globalAlpha = 1.0;
       requestAnimationFrame(renderLoop);
     }
+
+    // Toggle all relation lines visibility
+    window.toggleAllRelations = function() {
+      state.showAllRelations = !state.showAllRelations;
+      const btn = document.getElementById('toggle-relations-btn');
+      if (state.showAllRelations) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    };
+
+    // Reset 3D camera and selection
+    window.reset3DView = function() {
+      viz.angleX = 0.3;
+      viz.angleY = 0.5;
+      viz.zoom = 1.0;
+      viz.velocityX = 0;
+      viz.velocityY = 0;
+      viz.targetAngleX = null;
+      viz.targetAngleY = null;
+      viz.isAnimating = false;
+      selectTopic(null); // Deselect and clear panels
+    };
 
     // View Switching & Subject Tree Rendering logic
     state.currentView = '3d'; 
@@ -2628,6 +2692,28 @@ window.copyAIPrompt = function(topicId) {
     };
 
     async function selectTopic(topicId) {
+      if (!topicId) {
+        state.selectedTopicId = null;
+        state.selectedAncestors = state.selectedAncestors || new Set();
+        state.selectedDescendants = state.selectedDescendants || new Set();
+        state.selectedAncestors.clear();
+        state.selectedDescendants.clear();
+        
+        document.getElementById('detail-panel').innerHTML = `
+          <div class="welcome-screen">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <h3>请在左侧或 3D 图谱中选择知识点</h3>
+            <p>可在卡片中记录孩子“已掌握”或“需要练习”以形成家庭自适应学习档案</p>
+          </div>
+        `;
+        document.querySelectorAll('.topic-item').forEach(el => el.classList.remove('selected'));
+        return;
+      }
+
       state.selectedTopicId = topicId;
       
       // Calculate cascading ancestors and descendants
