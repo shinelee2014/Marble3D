@@ -738,6 +738,120 @@
       background: rgba(255, 255, 255, 0.08);
       border-radius: 2px;
     }
+
+    /* Language Toggle and AI buttons styling */
+    .lang-toggle-btn, .ai-header-btn {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      color: #60a5fa;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      outline: none;
+      font-family: inherit;
+    }
+    
+    .lang-toggle-btn:hover, .ai-header-btn:hover {
+      background: rgba(59, 130, 246, 0.3);
+      border-color: #60a5fa;
+      color: #fff;
+    }
+
+    .ai-header-btn {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #34d399;
+    }
+    
+    .ai-header-btn:hover {
+      background: rgba(16, 185, 129, 0.3);
+      border-color: #34d399;
+    }
+
+    /* Three State Panel Buttons and Cards */
+    .three-state-btn {
+      width: 100%;
+      text-align: left;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      outline: none;
+    }
+
+    .three-state-btn.hint-btn {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+    .three-state-btn.hint-btn:hover {
+      background: rgba(245, 158, 11, 0.25);
+    }
+
+    .three-state-btn.steps-btn {
+      background: rgba(139, 92, 246, 0.15);
+      color: #a78bfa;
+      border-color: rgba(139, 92, 246, 0.25);
+    }
+    .three-state-btn.steps-btn:hover {
+      background: rgba(139, 92, 246, 0.25);
+    }
+
+    .three-state-btn.answer-btn {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+    .three-state-btn.answer-btn:hover {
+      background: rgba(16, 185, 129, 0.25);
+    }
+
+    .three-state-panel {
+      font-size: 0.78rem;
+      line-height: 1.5;
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      border: 1px solid transparent;
+      margin-top: 2px;
+    }
+
+    .three-state-panel.hint-panel {
+      background: rgba(245, 158, 11, 0.04);
+      color: #fef3c7;
+      border-color: rgba(245, 158, 11, 0.15);
+      border-left: 3px solid #f59e0b;
+    }
+
+    .three-state-panel.steps-panel {
+      background: rgba(139, 92, 246, 0.04);
+      color: #ede9fe;
+      border-color: rgba(139, 92, 246, 0.15);
+      border-left: 3px solid #8b5cf6;
+    }
+
+    .three-state-panel.answer-panel {
+      background: rgba(16, 185, 129, 0.04);
+      color: #ecfdf5;
+      border-color: rgba(16, 185, 129, 0.15);
+      border-left: 3px solid #10b981;
+    }
+
+    /* Animation */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin-animation {
+      animation: spin 1.2s linear infinite;
+    }
   </style>
 </head>
 <body>
@@ -1700,21 +1814,218 @@
       `;
     }
 
-    window.copyAIPrompt = function(topicId) {
+window.copyAIPrompt = function(topicId) {
       const topic = state.topicMap[topicId];
       if (!topic) return;
+      const activeProfile = state.profiles.find(p => p.id === state.activeProfileId);
+      const childName = activeProfile ? activeProfile.name : "孩子";
+      const grade = activeProfile ? activeProfile.grade : 2;
       
-      const promptText = `你是一位中国江苏省苏州市的优秀小学教师，请根据“苏教版/译林版”大纲，针对知识点【${topic.name}】（适合 ${topic.ageRangeStart ?? 6}-${topic.ageRangeEnd ?? 12} 岁孩子，学科：${topic.subject}），出 5 道贴合日常生活场景的趣味作答题，并附带详细的解题步骤、参考答案与家长讲解辅导要点。`;
-      
-      navigator.clipboard.writeText(promptText).then(() => {
-        alert(`已成功复制知识点【${topic.name}】的 AI 出题 Prompt！\n您现在可以将其粘贴到 ChatGPT、Gemini、Claude 或 DeepSeek 中直接让其出题打印作业纸了！`);
+      const prompt = `# 🍎 苏州小课堂·${topic.subject}精讲\n\n` +
+          `你是苏州小学一位经验丰富的${topic.subject}老师。请为${grade}年级的学生${childName}出3道关于【${topic.name}】的趣味练习题。\n` +
+          `要求：\n` +
+          `1. 贴近苏教版${grade}年级教材，内容生动有趣，难度适中。\n` +
+          `2. 严禁使用任何 LaTeX 语法或美元符号（如不要写 $x$，$y$），数学公式和变量一律直接写成普通文本，例如直接写 x、y、z 或 x + 8 = 25，确保不要出现任何 $ 符号。\n` +
+          `3. 对于数学中的代数/方程题目，未知数（变量）仅使用小学生最常用的 x、y、z（优先使用 x），不要使用 m、n 等非常用字母。\n\n` +
+          `请严格按照以下格式和排版输出 markdown，不要包裹 JSON 代码块，也不要输出任何多余的文字：\n\n` +
+          `## ✨ 教学目标设定\n` +
+          `1. 知识目标：学生能够...\n` +
+          `2. 能力目标：学生能够...\n` +
+          `3. 情感态度目标：培养学生...\n\n` +
+          `## 📝 趣味课后练习题（共3题）\n\n` +
+          `### 第 1 题：【写一个趣味题名】情境应用题（基础型/进阶型/挑战型）\n` +
+          `【题干】这里写详细的题目描述...\n` +
+          `【✍️ 解题步骤】\n` +
+          `1. 设未知数：...\n` +
+          `2. 列方程：...\n` +
+          `3. 解方程：...\n` +
+          `【✅ 参考答案】这里写答案内容...\n` +
+          `【💡 思考提示】给家长的讲解辅导要点/思考提示...\n\n` +
+          `### 第 2 题：...`;
+
+      navigator.clipboard.writeText(prompt).then(() => {
+        alert("📋 系统出题 Prompt 已复制到剪贴板！可以直接粘贴到大模型中使用。");
       }).catch(err => {
         console.error("复制失败:", err);
         alert("复制失败，请手动在浏览器设置中开启剪切板权限。");
       });
     };
 
-    function selectTopic(topicId) {
+    window.toggleLanguage = function() {
+      state.showEnglish = !state.showEnglish;
+      if (state.selectedTopicId) {
+        selectTopic(state.selectedTopicId);
+      }
+    };
+
+    window.toggleThreeState = function(panelId) {
+      const el = document.getElementById(panelId);
+      if (!el) return;
+      el.style.display = el.style.display === "none" ? "block" : "none";
+    };
+
+    function parseQuizMarkdown(markdown) {
+      if (!markdown) return '';
+      
+      // 1. Extract Teaching Goals
+      let goalsHtml = '';
+      const goalsMatch = markdown.match(/## ✨ 教学目标设定([\s\S]*?)(?=##|$)/);
+      if (goalsMatch) {
+        const goalsText = goalsMatch[1].trim();
+        const goalsList = goalsText.split('\n')
+          .map(line => line.trim())
+          .filter(line => line.length > 0)
+          .map(line => `<li>${line.replace(/^\d+[\.\、\s]*/, '')}</li>`)
+          .join('');
+        goalsHtml = `
+          <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(99, 102, 241, 0.05)); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);">
+            <div style="font-weight: 600; color: #818cf8; font-size: 0.85rem; margin-bottom: 0.4rem;">
+              🎯 核心教学目标 (家校协同辅导重点)
+            </div>
+            <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.78rem; color: #d1d5db; line-height: 1.5; list-style-type: decimal;">
+              ${goalsList}
+            </ul>
+          </div>
+        `;
+      }
+
+      // 2. Extract Questions
+      const questions = [];
+      const questionBlocks = markdown.split(/###\s+第/);
+      questionBlocks.forEach((block, idx) => {
+        if (idx === 0) return;
+        const fullBlock = "第" + block;
+        
+        let title = "趣味练习题";
+        const titleMatch = fullBlock.match(/^(第\s*\d+\s*题：[^\n]*)/);
+        if (titleMatch) title = titleMatch[1].trim();
+        
+        const stemMatch = fullBlock.match(/【题干】([\s\S]*?)(?=【✍️|【✅|【💡|###|$)/);
+        const stepsMatch = fullBlock.match(/【✍️ 解题步骤】([\s\S]*?)(?=【✅|【💡|###|$)/);
+        const answerMatch = fullBlock.match(/【✅ 参考答案】([\s\S]*?)(?=【💡|###|$)/);
+        const hintMatch = fullBlock.match(/【💡 思考提示】([\s\S]*?)(?=###|$)/);
+        
+        const stem = stemMatch ? stemMatch[1].trim() : '（生成中...）';
+        const steps = stepsMatch ? stepsMatch[1].trim() : '';
+        const answer = answerMatch ? answerMatch[1].trim() : '';
+        const hint = hintMatch ? hintMatch[1].trim() : '';
+        
+        if (stem) {
+          questions.push({ title, stem, steps, answer, hint });
+        }
+      });
+
+      if (questions.length === 0) {
+        // Fallback parser: just format markdown as plain text
+        return `<div style="font-size: 0.8rem; color: #d1d5db; white-space: pre-wrap; line-height: 1.5;">${markdown}</div>`;
+      }
+
+      const quizId = Math.random().toString(36).substr(2, 9);
+      let questionsHtml = questions.map((q, i) => {
+        const qKey = `q_${quizId}_${i}`;
+        return `
+          <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 1rem; margin-bottom: 1rem; last-child: { border: none; margin-bottom: 0; }">
+            <div style="font-weight: 600; color: #f3f4f6; margin-bottom: 0.4rem; font-size: 0.85rem;">📝 ${q.title}</div>
+            <div style="font-size: 0.8rem; color: #e5e7eb; line-height: 1.5; margin-bottom: 0.8rem; background: rgba(255,255,255,0.02); padding: 0.6rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">${q.stem.replace(/\n/g, '<br>')}</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              ${q.hint ? `
+                <div>
+                  <button class="three-state-btn hint-btn" onclick="toggleThreeState('${qKey}_hint')">
+                    💡 获得提示 (思路点拨)
+                  </button>
+                  <div id="${qKey}_hint" class="three-state-panel hint-panel" style="display: none;">
+                    ${q.hint.replace(/\n/g, '<br>')}
+                  </div>
+                </div>
+              ` : ''}
+              
+              ${q.steps ? `
+                <div>
+                  <button class="three-state-btn steps-btn" onclick="toggleThreeState('${qKey}_steps')">
+                    ✍️ 解题步骤 (详细推导)
+                  </button>
+                  <div id="${qKey}_steps" class="three-state-panel steps-panel" style="display: none;">
+                    ${q.steps.replace(/\n/g, '<br>')}
+                  </div>
+                </div>
+              ` : ''}
+              
+              ${q.answer ? `
+                <div>
+                  <button class="three-state-btn answer-btn" onclick="toggleThreeState('${qKey}_answer')">
+                    ✅ 核对答案
+                  </button>
+                  <div id="${qKey}_answer" class="three-state-panel answer-panel" style="display: none;">
+                    ${q.answer.replace(/\n/g, '<br>')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return goalsHtml + questionsHtml;
+    }
+
+    window.generateAIQuiz = async function(topicId) {
+      const topic = state.topicMap[topicId];
+      if (!topic) return;
+      const container = document.getElementById(`quiz-box-inner-${topicId}`);
+      if (!container) return;
+      
+      const activeProfile = state.profiles.find(p => p.id === state.activeProfileId);
+      const childName = activeProfile ? activeProfile.name : "孩子";
+      const grade = activeProfile ? activeProfile.grade : 2;
+      
+      const originalHtml = container.innerHTML;
+      
+      container.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; gap: 0.6rem; color: #a5b4fc;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-animation">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+          <div style="font-size: 0.8rem; font-weight: 500;">🤖 AI 正在出题中，这大约需要 15-30 秒...</div>
+          <div style="font-size: 0.7rem; color: var(--text-secondary);">正在连接本地 LM Studio 精密模型进行苏教版教学目标对齐</div>
+        </div>
+      `;
+      
+      try {
+        const res = await fetch("/api/generate-questions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            topicName: topic.name,
+            subject: topic.subject,
+            profileName: childName,
+            grade: grade
+          })
+        });
+        const data = await res.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        if (data.markdown) {
+          state.aiQuizzes = state.aiQuizzes || {};
+          state.aiQuizzes[topicId] = data.markdown;
+          container.innerHTML = parseQuizMarkdown(data.markdown);
+        } else {
+          throw new Error("No quiz data returned");
+        }
+      } catch (e) {
+        console.error("AI quiz generation failed:", e);
+        container.innerHTML = `
+          <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); padding: 0.8rem; border-radius: 8px; margin-bottom: 0.8rem; font-size: 0.78rem; color: #fca5a5; line-height: 1.4;">
+            ⚠️ <strong>出题失败</strong>：${e.message || '本地 AI (LM Studio) 连接失败'}<br>
+            请确认您的 LM Studio (127.0.0.1:1234) 已启动并加载了模型。您可以点击下方复制 Prompt 手动出题。
+          </div>
+          ${originalHtml}
+        `;
+      }
+    };
+
+    async function selectTopic(topicId) {
       state.selectedTopicId = topicId;
       const topic = state.topicMap[topicId];
       const panel = document.getElementById('detail-panel');
@@ -1724,6 +2035,32 @@
       
       const activeProfile = state.profiles.find(p => p.id === state.activeProfileId);
       const childName = activeProfile ? activeProfile.name : "孩子";
+      
+      // Setup translations variables
+      state.translations = state.translations || {};
+      state.showEnglish = state.showEnglish !== undefined ? state.showEnglish : false;
+      
+      // Load translations asynchronously for dependency reasons
+      const reasonsToTranslate = [];
+      prereqs.forEach(p => { if (p.reason) reasonsToTranslate.push(p.reason); });
+      unlocks.forEach(u => { if (u.reason) reasonsToTranslate.push(u.reason); });
+      
+      const missing = reasonsToTranslate.filter(r => !state.translations[r]);
+      if (missing.length > 0) {
+        try {
+          const res = await fetch('/api/translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ texts: missing })
+          });
+          const data = await res.json();
+          if (data.translations) {
+            Object.assign(state.translations, data.translations);
+          }
+        } catch (e) {
+          console.error("Translation failed:", e);
+        }
+      }
       
       const unmasteredPrereqs = [];
       prereqs.forEach(p => {
@@ -1804,12 +2141,17 @@
             </div>
 
             <div>
-              <div class="section-title" style="color: #10b981">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
-                随堂自主练习 (课后作业题)
+              <div class="section-title" style="color: #10b981; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <span style="display: flex; align-items: center; gap: 0.3rem;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                  随堂自主练习 (课后作业题)
+                </span>
+                <button class="ai-header-btn" onclick="generateAIQuiz('${topicId}')">✨ AI 一键出题</button>
               </div>
               <div class="prompt-box" style="border-color: rgba(16, 185, 129, 0.3); background-color: rgba(16, 185, 129, 0.03); color: var(--text-primary);">
-                ${generateExercisesHtml(topic)}
+                <div id="quiz-box-inner-${topicId}">
+                  ${state.aiQuizzes && state.aiQuizzes[topicId] ? parseQuizMarkdown(state.aiQuizzes[topicId]) : generateExercisesHtml(topic)}
+                </div>
               </div>
             </div>
             
@@ -1828,9 +2170,12 @@
 
         <div class="relationship-grid">
           <div class="relation-card">
-            <div class="section-title" style="color: #60a5fa">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-              前置技能 Prerequisites (${prereqs.length})
+            <div class="section-title" style="color: #60a5fa; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <span style="display: flex; align-items: center; gap: 0.3rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                前置技能 Prerequisites (${prereqs.length})
+              </span>
+              <button class="lang-toggle-btn" onclick="toggleLanguage()">🌐 ${state.showEnglish ? '显示中文' : 'Show English'}</button>
             </div>
             <div class="relation-list">
               ${prereqs.length === 0 ? '<div style="color: var(--text-secondary); font-size: 0.85rem;">无前置知识要求（入门概念）</div>' : 
@@ -1844,7 +2189,7 @@
                           <span class="status-dot ${preStatus}"></span>
                           ${pre.name}
                         </div>
-                        ${p.reason ? `<div class="relation-reason">“${p.reason}”</div>` : ''}
+                        ${p.reason ? `<div class="relation-reason">“${state.showEnglish ? p.reason : (state.translations[p.reason] || p.reason)}”</div>` : ''}
                       </div>
                       <div class="relation-badge-group">
                         <span class="subject-badge ${getSubjectClass(pre.subject)}">${pre.subject.substring(0,2)}</span>
@@ -1858,9 +2203,12 @@
           </div>
 
           <div class="relation-card">
-            <div class="section-title" style="color: #c084fc">
-              解锁后置 Unlocks (${unlocks.length})
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            <div class="section-title" style="color: #c084fc; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <span style="display: flex; align-items: center; gap: 0.3rem;">
+                解锁后置 Unlocks (${unlocks.length})
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </span>
+              <button class="lang-toggle-btn" onclick="toggleLanguage()">🌐 ${state.showEnglish ? '显示中文' : 'Show English'}</button>
             </div>
             <div class="relation-list">
               ${unlocks.length === 0 ? '<div style="color: var(--text-secondary); font-size: 0.85rem;">该概念为终端概念，暂无后续解锁概念</div>' : 
@@ -1874,7 +2222,7 @@
                           <span class="status-dot ${targetStatus}"></span>
                           ${target.name}
                         </div>
-                        ${u.reason ? `<div class="relation-reason">“${u.reason}”</div>` : ''}
+                        ${u.reason ? `<div class="relation-reason">“${state.showEnglish ? u.reason : (state.translations[u.reason] || u.reason)}”</div>` : ''}
                       </div>
                       <div class="relation-badge-group">
                         <span class="subject-badge ${getSubjectClass(target.subject)}">${target.subject.substring(0,2)}</span>
