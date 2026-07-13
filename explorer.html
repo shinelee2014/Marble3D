@@ -1910,10 +1910,10 @@
             ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
             ctx.stroke();
           } else {
-            // Non-path links are extremely dim when there is a selection
-            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+            // Non-path links are faintly visible as context when there is a selection
+            ctx.strokeStyle = 'rgba(255,255,255,0.06)';
             ctx.lineWidth = 0.4;
-            ctx.globalAlpha = 0.02;
+            ctx.globalAlpha = 0.05;
             ctx.beginPath();
             ctx.moveTo(srcNode.screenX, srcNode.screenY);
             ctx.lineTo(tgtNode.screenX, tgtNode.screenY);
@@ -1958,7 +1958,7 @@
         
         if (hasSelection) {
           if (!isConstellationNode) {
-            nodeOpacity = 0.05 * nodeOpacity; // dim non-path elements
+            nodeOpacity = Math.max(0.08, 0.25 * nodeOpacity); // dim non-path elements, but keep visible
           }
         }
         
