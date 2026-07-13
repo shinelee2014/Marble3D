@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "dependencyCount": 139,
+  "dependencyCount": 157,
   "dependencies": [
     {
       "topicId": "sz_math_1_3",
@@ -696,6 +696,96 @@
       "topicId": "sz_inf_6_3",
       "prerequisiteId": "sz_mor_1_4",
       "reason": "一年级防拐骗不向陌生人透露电话的警惕性直接升华为六年级防范网络交友诈骗和设置强密码"
+    },
+    {
+      "topicId": "sz_math_6_10",
+      "prerequisiteId": "sz_math_6_9",
+      "reason": "圆的周长与面积是圆柱与圆锥立体计算的平面基础"
+    },
+    {
+      "topicId": "sz_math_6_10",
+      "prerequisiteId": "sz_math_6_2",
+      "reason": "立体体积计算思维是圆柱与圆锥体积公式推导的前置"
+    },
+    {
+      "topicId": "sz_math_6_11",
+      "prerequisiteId": "sz_math_6_6",
+      "reason": "百分数的百分比概念与折扣计算是扇形统计图推算样本总数的基础"
+    },
+    {
+      "topicId": "sz_math_6_12",
+      "prerequisiteId": "sz_math_6_7",
+      "reason": "比例基本性质是图形按比例缩放及周长/面积比推算的基础"
+    },
+    {
+      "topicId": "sz_math_6_13",
+      "prerequisiteId": "sz_math_6_4",
+      "reason": "分数除法与方程解法是建立复杂应用题代数方程模型的前提"
+    },
+    {
+      "topicId": "sz_math_6_13",
+      "prerequisiteId": "sz_math_6_5",
+      "reason": "比的意义与按比例分配是解决多组混合成分配比应用题的基础"
+    },
+    {
+      "topicId": "sz_math_6_14",
+      "prerequisiteId": "sz_math_6_5",
+      "reason": "求化简比与比值是数轴坐标点求最简整数比的基础"
+    },
+    {
+      "topicId": "sz_math_6_15",
+      "prerequisiteId": "sz_math_2_4",
+      "reason": "直角与角的基本概念是三角尺拼角计算的前提条件"
+    },
+    {
+      "topicId": "sz_chn_6_7",
+      "prerequisiteId": "sz_chn_6_2",
+      "reason": "文言实词理解与停顿是分析虚词指代及全文翻译的基础"
+    },
+    {
+      "topicId": "sz_chn_6_7",
+      "prerequisiteId": "sz_chn_6_4",
+      "reason": "小古文常用词是精细辨析文言虚词在句中作用的前提"
+    },
+    {
+      "topicId": "sz_chn_6_9",
+      "prerequisiteId": "sz_chn_6_3",
+      "reason": "修辞复习与文学常识积累是对仗拼写对联的基础"
+    },
+    {
+      "topicId": "sz_chn_6_10",
+      "prerequisiteId": "sz_chn_6_6",
+      "reason": "文章结构与脉络梳理是准确提取说明文段落逻辑与进行事实判定的前提"
+    },
+    {
+      "topicId": "sz_chn_6_11",
+      "prerequisiteId": "sz_chn_6_3",
+      "reason": "修辞手法与文学积累是理解并默写特定意象古诗词毕业赠言的前提"
+    },
+    {
+      "topicId": "sz_eng_6_5",
+      "prerequisiteId": "sz_eng_6_1",
+      "reason": "一般过去时态是多时态综合辨析的必备基础时态之一"
+    },
+    {
+      "topicId": "sz_eng_6_5",
+      "prerequisiteId": "sz_eng_6_2",
+      "reason": "将来时态 be going to 是进行混合将来时态判定的前提"
+    },
+    {
+      "topicId": "sz_eng_6_6",
+      "prerequisiteId": "sz_eng_6_1",
+      "reason": "动词过去式不规则变化是深入一般过去时句型与完形的基础"
+    },
+    {
+      "topicId": "sz_eng_6_7",
+      "prerequisiteId": "sz_eng_5_5",
+      "reason": "频度副词与形容词基础用法是学习比较级特殊结构的前置"
+    },
+    {
+      "topicId": "sz_eng_6_8",
+      "prerequisiteId": "sz_eng_6_4",
+      "reason": "小学短篇阅读是衔接初中完形及阅读理解长难句的进阶台阶"
     }
   ]
 }
