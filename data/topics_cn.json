@@ -4224,14 +4224,16 @@
     {
       "id": "sz_eng_6_6",
       "type": "PROCEDURAL",
-      "subject": "词汇与语法",
+      "subject": "英语",
       "domain": "词汇与语法",
       "name": "名词与动词不规则变形与词性转换",
       "description": "熟练掌握小升初核心名词的不规则复数变化，以及动词过去式和过去分词的不规则变形，完成派生词的转换。",
       "evidence": [
         "写出child -> children, foot -> feet, phenomenon -> phenomena的复数不规则变化",
         "掌握常见动词过去式的不规则变形（如 go -> went, write -> wrote）"
-      ]
+      ],
+      "ageRangeStart": 11,
+      "ageRangeEnd": 12
     },
     {
       "id": "sz_eng_6_7",
