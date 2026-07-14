@@ -3290,6 +3290,9 @@ window.copyAIPrompt = function(topicId) {
               <button class="mastery-btn ${status === 'practice' ? 'active-practice' : ''}" onclick="setMasteryStatus('${topicId}', 'practice')">
                 ⚠ 需要练习
               </button>
+              <button class="mastery-btn" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(139, 92, 246, 0.25)); border-color: rgba(99, 102, 241, 0.4); color: #c084fc; font-weight: bold;" onclick="openAdaptiveQuiz('${topicId}')">
+                🎯 专项自适应训练
+              </button>
             </div>
           </div>
           
@@ -3494,6 +3497,16 @@ window.copyAIPrompt = function(topicId) {
       saveState();
       renderList();
       selectTopic(topicId);
+    };
+
+    window.openAdaptiveQuiz = function(topicId) {
+      let quizUrl = '';
+      if (window.location.hostname.endsWith('github.io')) {
+        quizUrl = `https://${window.location.hostname}/MarbleQuiz/?topicId=${topicId}&profile=${state.activeProfileId || 'lee'}`;
+      } else {
+        quizUrl = `http://localhost:8001/?topicId=${topicId}&profile=${state.activeProfileId || 'lee'}`;
+      }
+      window.open(quizUrl, '_blank');
     };
 
     window.selectAndScroll = function(topicId) {
